@@ -1,59 +1,145 @@
-import React from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
+import gsap from 'gsap';
 import { CRTScreen } from '../../components/CRTScreen';
+import { Terminal } from '../../components/Terminal';
+import { sceneStore } from '../../animations/rig';
+import {
+  runBootSequence,
+  applyBootFinalState,
+  type BootElements,
+} from '../../animations/bootAnimations';
+import { getPrefersReducedMotion } from '../../config/motion';
+
+// Estado de boot persistente en módulo (sobrevive re-renders, no se resetea al volver)
+let bootHasRun = false;
 
 export const BootScene: React.FC = () => {
+  const terminalRef = useRef<HTMLDivElement>(null);
+  const promptRef = useRef<HTMLDivElement>(null);
+  const bootTlRef = useRef<gsap.core.Timeline | null>(null);
+
+  /** Extrae los elementos del DOM marcados con data-boot="*" */
+  const getBootElements = useCallback((): BootElements | null => {
+    const root = terminalRef.current;
+    if (!root) return null;
+
+    const flashEl = root.querySelector<HTMLElement>('[data-boot="flash"]');
+    const screenEl = root.querySelector<HTMLElement>('[data-boot="screen"]');
+    const line0 = root.querySelector<HTMLElement>('[data-boot="line-0"]');
+    const line1 = root.querySelector<HTMLElement>('[data-boot="line-1"]');
+    const line2 = root.querySelector<HTMLElement>('[data-boot="line-2"]');
+    const line3 = root.querySelector<HTMLElement>('[data-boot="line-3"]');
+    const cursorEl = root.querySelector<HTMLElement>('[data-boot="cursor"]');
+
+    if (!flashEl || !screenEl || !line0 || !line1 || !line2 || !line3 || !cursorEl) {
+      return null;
+    }
+
+    return {
+      flashEl,
+      screenEl,
+      lineEls: [line0, line1, line2, line3],
+      cursorEl,
+    };
+  }, []);
+
+  /** Oculta el prompt con fade-out suave y lo saca del flujo para no interceptar eventos */
+  const hidePrompt = useCallback(() => {
+    if (promptRef.current) {
+      gsap.to(promptRef.current, {
+        opacity: 0,
+        duration: 0.25,
+        ease: 'power1.in',
+        onComplete() {
+          if (promptRef.current) promptRef.current.style.display = 'none';
+        },
+      });
+    }
+  }, []);
+
+  /** Dispara la secuencia de boot — solo se ejecuta una vez */
+  const triggerBoot = useCallback(() => {
+    if (bootHasRun) return;
+    bootHasRun = true;
+
+    hidePrompt();
+
+    const els = getBootElements();
+    if (!els) return;
+
+    if (getPrefersReducedMotion()) {
+      applyBootFinalState(els);
+      sceneStore.set({ booted: true });
+      return;
+    }
+
+    bootTlRef.current = runBootSequence(els);
+  }, [getBootElements, hidePrompt]);
+
+  useEffect(() => {
+    // Si ya corrió el boot (p.ej. al volver a escena 1), mostrar estado final directo
+    if (sceneStore.get().booted || bootHasRun) {
+      bootHasRun = true;
+      const els = getBootElements();
+      if (els) applyBootFinalState(els);
+      if (promptRef.current) gsap.set(promptRef.current, { opacity: 0, display: 'none' });
+      return;
+    }
+
+    // Solo click y touch inician el boot — las teclas (F11, flechas, Escape) no deben dispararlo
+    const onClick = () => triggerBoot();
+    const onTouch = () => triggerBoot();
+
+    window.addEventListener('click', onClick);
+    window.addEventListener('touchstart', onTouch, { passive: true });
+
+    return () => {
+      window.removeEventListener('click', onClick);
+      window.removeEventListener('touchstart', onTouch);
+      // Matar el timeline si está corriendo al desmontar (p.ej. HMR)
+      if (bootTlRef.current && bootTlRef.current.isActive()) {
+        bootTlRef.current.kill();
+      }
+    };
+  }, [triggerBoot, getBootElements]);
+
   return (
     <section
       id="scene-1"
       className="absolute inset-0 flex items-center justify-center select-none overflow-hidden pt-14"
     >
+      {/* Monitor con contenido CRT — el prompt vive dentro del overlay para quedar sobre la pantalla negra */}
       <CRTScreen contentWidth={640} contentHeight={480}>
-        {/*
-          Tipografía CRT — tamaño en espacio del overlay (640×480).
-          Factor de escala visual real ≈ 0.775 a 1920×1080 (matrix3d × plateScale).
-          32px → ~24.8px visual | 34px → ~26.4px visual | 26px → ~20px visual (footer).
-        */}
+        <Terminal ref={terminalRef} />
+
+        {/* Prompt centrado dentro del área CRT (640×480) — desaparece al hacer clic */}
         <div
-          className="w-full h-full flex flex-col justify-start text-[#3dff8a] bg-black/90 selection:bg-[#3dff8a] selection:text-black"
+          ref={promptRef}
+          className="boot-prompt"
+          aria-live="polite"
+          aria-label="Instrucción de inicio"
           style={{
-            fontFamily: "'JetBrains Mono', 'Courier New', monospace",
-            fontSize: '32px',
-            lineHeight: 1.4,
-            padding: '28px 32px 24px',
+            position: 'absolute',
+            top: '58%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            textAlign: 'center',
+            pointerEvents: 'none',
+            zIndex: 22,
+            whiteSpace: 'nowrap',
           }}
         >
-          {/* Header */}
-          <div
-            className="border-b border-[#3dff8a]/40 pb-3 mb-5 font-bold tracking-widest text-[#3dff8a]"
-            style={{ fontSize: '34px' }}
+          <span
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '19px',
+              color: 'rgba(61, 255, 138, 0.80)',
+              letterSpacing: '0.18em',
+              textShadow: '0 0 10px rgba(61,255,138,0.55)',
+            }}
           >
-            // SISTEMA LEGADO v1.0
-          </div>
-
-          {/* Líneas de terminal */}
-          <div className="flex flex-col gap-y-3 text-[#3dff8a]/90">
-            <div>&gt; INICIANDO...</div>
-            <div>&gt; MÓDULO: OPERACIONES</div>
-            <div>&gt; ESTADO: ACTIVO</div>
-
-            {/* Cursor parpadeante */}
-            <div className="flex items-center gap-2 mt-2">
-              <span>&gt;</span>
-              <span
-                className="inline-block bg-[#3dff8a] animate-pulse shadow-[0_0_10px_#3dff8a]"
-                style={{ width: '18px', height: '32px', verticalAlign: 'middle' }}
-              />
-            </div>
-          </div>
-
-          {/* Footer */}
-          <div
-            className="mt-auto pt-4 border-t border-[#3dff8a]/20 text-[#3dff8a]/60 flex justify-between"
-            style={{ fontSize: '26px' }}
-          >
-            <span>MEM: 640K OK</span>
-            <span>DISC: READY</span>
-          </div>
+            HACÉ CLICK PARA INICIAR
+          </span>
         </div>
       </CRTScreen>
     </section>

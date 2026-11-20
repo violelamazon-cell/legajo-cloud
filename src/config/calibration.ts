@@ -9,12 +9,13 @@ export interface ScreenCorners {
 export const PLATE_WIDTH = 1536;
 export const PLATE_HEIGHT = 1024;
 
-// Coordenadas calibradas del cristal CRT en el espacio de píxeles del plate
+// Coordenadas calibradas del cristal CRT en el espacio de píxeles del plate (vista frontal simétrica)
+// Cristal: X=[488..1048] (ancho 560px, centro X=768), Y=[106..496] (alto 390px, centro Y=301)
 export const CRT_SCREEN_CORNERS: ScreenCorners = {
-  topLeft: [533, 126],
-  topRight: [1053, 126],
-  bottomRight: [1048, 524],
-  bottomLeft: [536, 524],
+  topLeft: [488, 106],
+  topRight: [1048, 106],
+  bottomRight: [1048, 496],
+  bottomLeft: [488, 496],
 };
 
 // Calibración placeholder para pantalla MacBook (etapas posteriores)
@@ -25,8 +26,8 @@ export const MAC_SCREEN_CORNERS: ScreenCorners = {
   bottomLeft: [0, 1080],
 };
 
-// Valores derivados de calibración para zoom al cristal de la PC retro (~2.6x para encuadre con bisel como en el PDF)
-// Centro del cristal = (793, 325) -> Delta respecto al centro del plate (768, 512) = (+25, -187)
+// Valores derivados de calibración para zoom al cristal de la PC retro frontal
+// Centro del cristal = (768, 301) -> Delta respecto al centro del plate (768, 512) = (0, -211)
 export const SCREEN_ZOOM = 2.6;
-export const SCREEN_TX = -65;
-export const SCREEN_TY = 486;
+export const SCREEN_TX = 0;
+export const SCREEN_TY = 549;

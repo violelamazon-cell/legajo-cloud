@@ -16,7 +16,6 @@ import { buildMetrics } from './animations/scenes/metrics';
 import { buildClosing } from './animations/scenes/closing';
 
 import { BootScene } from './scenes/BootScene/BootScene';
-import { DecisionScene } from './scenes/DecisionScene/DecisionScene';
 import { WrapperScene } from './scenes/WrapperScene/WrapperScene';
 import { MigrationScene } from './scenes/MigrationScene/MigrationScene';
 import { StrategiesScene } from './scenes/StrategiesScene/StrategiesScene';
@@ -97,7 +96,6 @@ export default function App() {
             className="absolute inset-0 w-full h-full will-change-transform origin-center"
           >
             <BootScene />
-            <DecisionScene />
             <WrapperScene />
             <MigrationScene />
             <StrategiesScene />

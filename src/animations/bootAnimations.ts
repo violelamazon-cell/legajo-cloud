@@ -28,7 +28,7 @@ export interface BootElements {
 export function applyBootFinalState(els: BootElements): void {
   const { flashEl, screenEl, lineEls, cursorEl } = els;
   gsap.set(flashEl, { opacity: 0, scaleY: 0 });
-  gsap.set(screenEl, { opacity: 1 });
+  gsap.set(screenEl, { autoAlpha: 1 });
   BOOT_LINES.forEach((text, i) => {
     lineEls[i].textContent = text;
   });
@@ -45,7 +45,7 @@ export function runBootSequence(els: BootElements): gsap.core.Timeline {
 
   // ── Estado inicial ───────────────────────────────────────
   gsap.set(flashEl, { opacity: 0, scaleY: 0, scaleX: 1 });
-  gsap.set(screenEl, { opacity: 0 });
+  gsap.set(screenEl, { opacity: 0, visibility: 'visible' });
   gsap.set(cursorEl, { opacity: 0 });
   lineEls.forEach((el) => { el.textContent = ''; });
 
@@ -66,7 +66,7 @@ export function runBootSequence(els: BootElements): gsap.core.Timeline {
   tl.to(flashEl, { opacity: 0, duration: 0.28, ease: 'power1.in' }, 0.44);
 
   // ── 4. Fósforo verde aparece (screen fade-in) ───────────
-  tl.to(screenEl, { opacity: 1, duration: 0.45, ease: 'power2.out' }, 0.5);
+  tl.to(screenEl, { autoAlpha: 1, duration: 0.45, ease: 'power2.out' }, 0.5);
 
   // ── 5. Tipeo de las cuatro líneas ───────────────────────
   // Velocidad: ~40-50ms por caracter. Pausas entre líneas para efecto natural.

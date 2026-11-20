@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useCallback } from 'react';
 import gsap from 'gsap';
 import { CRTScreen } from '../../components/CRTScreen';
 import { Terminal } from '../../components/Terminal';
+import { DecisionScene } from '../DecisionScene/DecisionScene';
 import { sceneStore } from '../../animations/rig';
 import {
   runBootSequence,
@@ -106,11 +107,17 @@ export const BootScene: React.FC = () => {
   return (
     <section
       id="scene-1"
-      className="absolute inset-0 flex items-center justify-center select-none overflow-hidden pt-14"
+      className="absolute inset-0 flex items-center justify-center select-none overflow-hidden"
     >
-      {/* Monitor con contenido CRT — el prompt vive dentro del overlay para quedar sobre la pantalla negra */}
+      {/* Monitor con contenido CRT — alberga las capas intercambiables de la pantalla */}
       <CRTScreen contentWidth={640} contentHeight={480}>
-        <Terminal ref={terminalRef} />
+        {/* Capa 1: Terminal de arranque (Escena 01) */}
+        <div id="boot-terminal-layer" className="absolute inset-0 w-full h-full z-10">
+          <Terminal ref={terminalRef} />
+        </div>
+
+        {/* Capa 2: Matriz de decisión (Escena 02 — proyectada sobre el mismo cristal CRT) */}
+        <DecisionScene />
 
         {/* Prompt centrado dentro del área CRT (640×480) — desaparece al hacer clic */}
         <div

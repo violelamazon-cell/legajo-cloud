@@ -1,16 +1,25 @@
-/**
- * Estado mutable de efectos 3D compartido entre GSAP y R3F
- */
 export interface FXState {
-  wrapperY: number;
+  wrapY: number;
+  wrapRotY: number;
+  wrapOpacity: number;
+  wrapGlow: number;
+  ringsScale: number;
+  ringsOpacity: number;
   ringsT: number;
   beamsT: number;
   particlesT: number;
 }
 
-export const fx: FXState = {
-  wrapperY: 0,
+export const FX_INITIAL: FXState = {
+  wrapY: 1100,
+  wrapRotY: 1.1,
+  wrapOpacity: 0,
+  wrapGlow: 0,
+  ringsScale: 0.6,
+  ringsOpacity: 0,
   ringsT: 0,
   beamsT: 0,
   particlesT: 0,
 };
+
+export const fx: FXState = { ...FX_INITIAL };

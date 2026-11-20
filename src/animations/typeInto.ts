@@ -1,4 +1,3 @@
-import gsap from 'gsap';
 
 /**
  * Tipeo reversible derivado del progreso (sin setInterval).

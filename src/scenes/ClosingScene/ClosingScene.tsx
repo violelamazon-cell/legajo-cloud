@@ -5,6 +5,7 @@ export const ClosingScene: React.FC = () => {
     <section
       id="scene-7"
       className="absolute inset-0 flex flex-col items-center justify-center p-8 select-none"
+      style={{ visibility: 'hidden', opacity: 0 }}
     >
       <div className="max-w-xl w-full border border-[#1b1d22] bg-[#0c0d10]/80 p-8 rounded-lg shadow-2xl backdrop-blur text-center">
         <div className="inline-block px-3 py-1 mb-4 rounded-full border border-[#22e6d8]/40 bg-[#22e6d8]/10 font-mono text-xs text-[#22e6d8]">

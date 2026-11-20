@@ -5,6 +5,7 @@ export const MigrationScene: React.FC = () => {
     <section
       id="scene-4"
       className="absolute inset-0 flex items-center select-none overflow-visible pointer-events-none"
+      style={{ visibility: 'hidden', opacity: 0 }}
     >
       {/* Track horizontal continuo de 2.5 viewports de recorrido vertical */}
       <div className="flex items-center gap-16 pl-24 w-[3600px] pointer-events-auto">

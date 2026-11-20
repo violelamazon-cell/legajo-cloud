@@ -7,10 +7,12 @@ import {
   SCREEN_ZOOM,
   SCREEN_TX,
   SCREEN_TY,
+  WRAP,
   type ScreenCorners,
 } from '../../config/calibration';
 import { quadToMatrix3d } from './quadToMatrix3d';
 import { rig, applyRig } from '../../animations/rig';
+import { WrapperLabel } from '../Wrapper/WrapperLabel';
 
 /** Altura reservada para la barra de navegación superior (px) */
 const NAV_HEIGHT = 56;
@@ -62,7 +64,7 @@ export const CRTScreen: React.FC<CRTScreenProps> = ({
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const debugVal = params.get('debug');
-      if (debugVal === 'screen' || (params.has('debug') && debugVal !== 'false')) {
+      if (debugVal === 'screen') {
         setIsDebugScreen(true);
       }
     }
@@ -193,80 +195,102 @@ export const SCREEN_TY = ${derivedStats.ty};`;
           transform: `scale(${plateScale})`,
           transformOrigin: 'center center',
           flexShrink: 0,
-        }}
+          // @ts-ignore
+          '--wrap-w': `${WRAP.w}px`,
+          '--wrap-h': `${WRAP.h}px`,
+        } as React.CSSProperties}
         className="relative select-none"
       >
-        {/* Imagen plate de la computadora retro apagada */}
+        {/* Resplandor y reflejo difuso de piso (Escena 03) */}
+        <div className="wrapper-floor" />
         <img
           src="/plates/pc-off.png"
-          alt="Computadora retro"
-          className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none z-0"
+          alt=""
+          aria-hidden="true"
+          className="plate--reflection"
         />
 
-        {/* Overlay HTML transformado mediante homografía quadToMatrix3d */}
+        {/* Etiqueta superior quebrada de la cápsula */}
+        <WrapperLabel />
+
+        {/* Contenedor con escala independiente para la computadora completa */}
         <div
-          id="crt-overlay-container"
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: `${contentWidth}px`,
-            height: `${contentHeight}px`,
-            transform: matrix3d,
-            transformOrigin: '0 0',
-            overflow: 'hidden',
-            borderRadius: '18px',
-            backgroundColor: '#030504',
-          }}
-          className="z-10 shadow-inner"
+          id="pc-scalable-frame"
+          className="absolute inset-0 w-full h-full will-change-transform"
+          style={{ transformOrigin: 'center center' }}
         >
-          {children}
-
-          {/* Sutil brillo y viñeta curva del cristal CRT */}
-          <div
-            className="absolute inset-0 pointer-events-none z-20"
-            style={{
-              background:
-                'radial-gradient(ellipse at 50% 50%, rgba(61,255,138,0.06) 0%, rgba(0,0,0,0.45) 85%, rgba(0,0,0,0.85) 100%)',
-              boxShadow: 'inset 0 0 24px rgba(0,0,0,0.95)',
-            }}
+          {/* Imagen plate de la computadora retro apagada */}
+          <img
+            src="/plates/pc-off.png"
+            alt="Computadora retro"
+            className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none z-0"
           />
-        </div>
 
-        {/* 4 Puntos de arrastre del panel de calibración (?debug=screen) */}
-        {isDebugScreen && (
-          <div className="absolute inset-0 pointer-events-none z-30">
-            {/* Líneas guía conectando las esquinas */}
-            <svg className="absolute inset-0 w-full h-full pointer-events-none">
-              <polygon
-                points={`${corners.topLeft[0]},${corners.topLeft[1]} ${corners.topRight[0]},${corners.topRight[1]} ${corners.bottomRight[0]},${corners.bottomRight[1]} ${corners.bottomLeft[0]},${corners.bottomLeft[1]}`}
-                fill="rgba(34,230,216,0.12)"
-                stroke="#22e6d8"
-                strokeWidth="1.5"
-                strokeDasharray="4 4"
-              />
-            </svg>
+          {/* Overlay HTML transformado mediante homografía quadToMatrix3d */}
+          <div
+            id="crt-overlay-container"
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: `${contentWidth}px`,
+              height: `${contentHeight}px`,
+              transform: matrix3d,
+              transformOrigin: '0 0',
+              overflow: 'hidden',
+              borderRadius: '18px',
+              backgroundColor: '#030504',
+            }}
+            className="z-10 shadow-inner crt"
+          >
+            {children}
 
-            {(Object.keys(corners) as CornerKey[]).map((key) => {
-              const [x, y] = corners[key];
-              return (
-                <div
-                  key={key}
-                  onPointerDown={(e) => handlePointerDown(key, e)}
-                  style={{
-                    left: `${x}px`,
-                    top: `${y}px`,
-                    transform: 'translate(-50%, -50%)',
-                  }}
-                  className="absolute w-7 h-7 rounded-full bg-[#22e6d8] border-2 border-white cursor-grab active:cursor-grabbing pointer-events-auto shadow-[0_0_12px_#22e6d8] flex items-center justify-center transition-transform hover:scale-125"
-                  title={`${key}: [${x}, ${y}]`}
-                >
-                  <span className="w-1.5 h-1.5 bg-black rounded-full" />
-                </div>
-              );
-            })}
+            {/* Sutil brillo y viñeta curva del cristal CRT */}
+            <div
+              className="absolute inset-0 pointer-events-none z-20"
+              style={{
+                background:
+                  'radial-gradient(ellipse at 50% 50%, rgba(61,255,138,0.06) 0%, rgba(0,0,0,0.45) 85%, rgba(0,0,0,0.85) 100%)',
+                boxShadow: 'inset 0 0 24px rgba(0,0,0,0.95)',
+              }}
+            />
           </div>
-        )}
+
+          {/* 4 Puntos de arrastre del panel de calibración (?debug=screen) */}
+          {isDebugScreen && (
+            <div className="absolute inset-0 pointer-events-none z-30">
+              {/* Líneas guía conectando las esquinas */}
+              <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                <polygon
+                  points={`${corners.topLeft[0]},${corners.topLeft[1]} ${corners.topRight[0]},${corners.topRight[1]} ${corners.bottomRight[0]},${corners.bottomRight[1]} ${corners.bottomLeft[0]},${corners.bottomLeft[1]}`}
+                  fill="rgba(34,230,216,0.12)"
+                  stroke="#22e6d8"
+                  strokeWidth="1.5"
+                  strokeDasharray="4 4"
+                />
+              </svg>
+
+              {(Object.keys(corners) as CornerKey[]).map((key) => {
+                const [x, y] = corners[key];
+                return (
+                  <div
+                    key={key}
+                    onPointerDown={(e) => handlePointerDown(key, e)}
+                    style={{
+                      left: `${x}px`,
+                      top: `${y}px`,
+                      transform: 'translate(-50%, -50%)',
+                    }}
+                    className="absolute w-7 h-7 rounded-full bg-[#22e6d8] border-2 border-white cursor-grab active:cursor-grabbing pointer-events-auto shadow-[0_0_12px_#22e6d8] flex items-center justify-center transition-transform hover:scale-125"
+                    title={`${key}: [${x}, ${y}]`}
+                  >
+                    <span className="w-1.5 h-1.5 bg-black rounded-full" />
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Panel flotante de calibración */}

@@ -3,6 +3,7 @@ import gsap from 'gsap';
 import { CRTScreen } from '../../components/CRTScreen';
 import { Terminal } from '../../components/Terminal';
 import { DecisionScene } from '../DecisionScene/DecisionScene';
+import { WrapperScreen } from '../WrapperScene/WrapperScreen';
 import { sceneStore } from '../../animations/rig';
 import {
   runBootSequence,
@@ -118,6 +119,9 @@ export const BootScene: React.FC = () => {
 
         {/* Capa 2: Matriz de decisión (Escena 02 — proyectada sobre el mismo cristal CRT) */}
         <DecisionScene />
+
+        {/* Capa 3: Pantalla Wrapper (Escena 03 — sobre el cristal CRT) */}
+        <WrapperScreen />
 
         {/* Prompt centrado dentro del área CRT (640×480) — desaparece al hacer clic */}
         <div

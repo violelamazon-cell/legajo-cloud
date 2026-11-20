@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { bindWorld, sceneStore, rig } from './animations/rig';
+import { bindWorld, sceneStore, rig, applyRig } from './animations/rig';
 import { buildMaster } from './animations/timeline';
 import { createMaster } from './animations/createMaster';
 import { bindNavigation, unbindNavigation, goToScene } from './components/Navigation/navigation';
@@ -21,6 +21,7 @@ import { MigrationScene } from './scenes/MigrationScene/MigrationScene';
 import { StrategiesScene } from './scenes/StrategiesScene/StrategiesScene';
 import { MetricsScene } from './scenes/MetricsScene/MetricsScene';
 import { ClosingScene } from './scenes/ClosingScene/ClosingScene';
+import { Stage3D } from './three/Stage3D';
 
 import { ProgressIndicator } from './components/ProgressIndicator';
 import { DebugHUD } from './components/DebugHUD';
@@ -39,6 +40,7 @@ export default function App() {
       (window as any).__legado_sceneStore = sceneStore;
       (window as any).__legado_goToScene = goToScene;
       (window as any).__legado_rig = rig;
+      (window as any).__legado_applyRig = applyRig;
     }
 
     // Instalación de utilidades de QA en window.__qa
@@ -102,6 +104,9 @@ export default function App() {
             <MetricsScene />
             <ClosingScene />
           </div>
+
+          {/* Capa 3D única compartida gobernada por rig y CameraSync */}
+          <Stage3D />
         </div>
       </div>
     </div>

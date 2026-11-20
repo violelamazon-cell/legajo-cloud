@@ -13,7 +13,7 @@ export const DecisionScene: React.FC = () => {
   return (
     <div
       id="scene-2"
-      className="absolute inset-0 w-full h-full decision-crt-screen crt-scanlines z-15 pointer-events-auto select-none"
+      className="crt-layer--decision absolute inset-0 w-full h-full decision-crt-screen crt-scanlines z-15 pointer-events-auto select-none"
       style={{ visibility: 'hidden', opacity: 0 }}
     >
       {/* Marco exterior redondeado de la grilla 2×2 integrado con la superficie del CRT */}

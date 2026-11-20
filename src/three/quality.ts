@@ -20,10 +20,10 @@ export const QUALITY_PRESETS: Record<QualityTier, QualityConfig> = {
   },
   medium: {
     tier: 'medium',
-    maxDpr: 1.5,
+    maxDpr: 2,
     particles: 300,
     enableBloom: false,
-    antialias: false,
+    antialias: true,
     webgl: true,
   },
   low: {

@@ -5,6 +5,7 @@ export const StrategiesScene: React.FC = () => {
     <section
       id="scene-5"
       className="absolute inset-0 flex flex-col items-center justify-center p-8 select-none"
+      style={{ visibility: 'hidden', opacity: 0 }}
     >
       <div className="max-w-2xl w-full border border-[#1b1d22] bg-[#0c0d10]/80 p-8 rounded-lg shadow-2xl backdrop-blur">
         <div className="flex items-center justify-between pb-4 mb-4 border-b border-[#1b1d22]">

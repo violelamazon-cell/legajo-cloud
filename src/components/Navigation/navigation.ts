@@ -22,7 +22,8 @@ export const unbindNavigation = () => {
 };
 
 export function goToScene(i: number) {
-  if (!sceneStore.get().booted) return; // bloqueado hasta terminar el encendido
+  if (!sceneStore.get().booted) return; // bloqueado hasta terminar el encendido CRT
+  if (i > 3 && !sceneStore.get().migrationBooted) return; // bloqueado hasta encender la MacBook
   if (!st || !tlRef) return;
   const idx = Math.max(0, Math.min(SCENE_COUNT - 1, i));
   pending = idx;

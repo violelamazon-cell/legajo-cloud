@@ -95,7 +95,7 @@ export default function App() {
           <div
             id="world"
             ref={worldRef}
-            className="absolute inset-0 w-full h-full will-change-transform origin-center"
+            className="absolute inset-0 w-full h-full will-change-transform origin-center z-20 pointer-events-none"
           >
             <BootScene />
             <WrapperScene />
@@ -104,6 +104,18 @@ export default function App() {
             <MetricsScene />
             <ClosingScene />
           </div>
+
+          {/* Overlay de fondo carbón para la escena 04 de migración.
+              opacity 0 = negro base; opacity 1 = #111318 carbón.
+              z-0 queda detrás de todo el contenido (world y Canvas). */}
+          <div
+            id="migration-bg-overlay"
+            className="absolute inset-0 pointer-events-none z-0"
+            style={{
+              background: '#111318',
+              opacity: 0,
+            }}
+          />
 
           {/* Capa 3D única compartida gobernada por rig y CameraSync */}
           <Stage3D />

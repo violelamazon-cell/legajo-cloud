@@ -18,6 +18,9 @@ export const CRT_SCREEN_CORNERS: ScreenCorners = {
   bottomLeft: [488, 496],
 };
 
+// Desplazamiento horizontal de la MacBook en el espacio del mundo (px de base)
+export const MAC_OFFSET_X = 1920;
+
 // Calibración placeholder para pantalla MacBook (etapas posteriores)
 export const MAC_SCREEN_CORNERS: ScreenCorners = {
   topLeft: [0, 0],
@@ -53,3 +56,26 @@ export const RING = {
   r1: 435, tiltX1: 1.15, tiltZ1: -0.15, phase1: 0.0,
   r2: 458, tiltX2: 0.94, tiltZ2: 0.18,  phase2: 1.1,
 };
+
+// Plate de la MacBook dentro de #world (px de base)
+export const MAC_PLATE = {
+  x: MAC_OFFSET_X,
+  y: 0,
+  w: PLATE_WIDTH,
+  h: PLATE_HEIGHT,
+};
+
+// Fracciones del plate de la MacBook (0..1). Punto de partida estimado desde una captura: se afina con ?calib=mac
+export const MAC_SCREEN = { l: 0.200, t: 0.146, w: 0.603, h: 0.547 };
+// Control: (MAC_PLATE.w * w) / (MAC_PLATE.h * h) debe dar ~1.65
+
+export function macScreenZoom() {
+  const w = MAC_PLATE.w * MAC_SCREEN.w;
+  const h = MAC_PLATE.h * MAC_SCREEN.h;
+  // centro de la pantalla en coordenadas de mundo (px, y hacia abajo), relativo al centro de #world
+  const cx = MAC_PLATE.x + (MAC_SCREEN.l + MAC_SCREEN.w / 2 - 0.5) * MAC_PLATE.w;
+  const cy = MAC_PLATE.y + (MAC_SCREEN.t + MAC_SCREEN.h / 2 - 0.5) * MAC_PLATE.h;
+  const s = Math.min((window.innerWidth * 0.94) / w, (window.innerHeight * 0.94) / h);
+  return { s, tx: -cx * s, ty: -cy * s };
+}
+

@@ -8,6 +8,10 @@ export interface FXState {
   ringsT: number;
   beamsT: number;
   particlesT: number;
+  /** 0→1: los haces se atenúan una vez que completan la transferencia */
+  beamsFade: number;
+  /** 0→1: destello de llegada al puerto de la MacBook */
+  arrivalFlash: number;
 }
 
 export const FX_INITIAL: FXState = {
@@ -20,6 +24,8 @@ export const FX_INITIAL: FXState = {
   ringsT: 0,
   beamsT: 0,
   particlesT: 0,
+  beamsFade: 0,
+  arrivalFlash: 0,
 };
 
 export const fx: FXState = { ...FX_INITIAL };

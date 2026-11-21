@@ -1,1 +1,8 @@
-/* Efectos visuales, glow y vidrios dicroicos (placeholder) */
+/* styles/effects.css */
+.mac-plate { position: relative; }              /* contenedor del plate de la MacBook */
+.mac-screen {
+  position: absolute; overflow: hidden; container-type: size;
+  border-radius: 1.4% / 2.3%; background: #04050a;
+}
+.mac-ui { position: absolute; inset: 0; padding: 4cqw 4.5cqw; }   /* UI «NUEVO SISTEMA: CLOUD» */
+/* IMPORTANTE: no usar will-change: transform en #world ni en .mac-screen (el zoom se ve borroso) */

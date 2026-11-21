@@ -1,7 +1,9 @@
 @import "tailwindcss";
 @import "./tokens.css";
+@import "./effects.css";
 @import "./crt.css";
 @import "./wrapper.css";
+@import "./cloud-screen.css";
 
 * {
   box-sizing: border-box;
@@ -20,4 +22,10 @@ body,
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* El canvas 3D es puramente visual; nunca debe interceptar clicks ni puntero */
+#stage canvas,
+canvas {
+  pointer-events: none !important;
 }

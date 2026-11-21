@@ -204,7 +204,7 @@ export const SCREEN_TY = ${derivedStats.ty};`;
         {/* Resplandor y reflejo difuso de piso (Escena 03) */}
         <div className="wrapper-floor" />
         <img
-          src="/plates/pc-off.png"
+          src="/plates/pc-off-transparent.png"
           alt=""
           aria-hidden="true"
           className="plate--reflection"
@@ -219,9 +219,9 @@ export const SCREEN_TY = ${derivedStats.ty};`;
           className="absolute inset-0 w-full h-full will-change-transform"
           style={{ transformOrigin: 'center center' }}
         >
-          {/* Imagen plate de la computadora retro apagada */}
+          {/* Imagen plate de la computadora retro apagada con transparencia real */}
           <img
-            src="/plates/pc-off.png"
+            src="/plates/pc-off-transparent.png"
             alt="Computadora retro"
             className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none z-0"
           />

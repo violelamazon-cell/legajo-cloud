@@ -2,6 +2,7 @@ import React, { useMemo, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { CameraSync } from './CameraSync';
 import { WrapperCube, WrapperRings } from './Wrapper';
+import { FiberOptics } from './FiberOptics';
 import { getQualityTier } from './quality';
 
 export function Stage3D(): React.ReactElement | null {
@@ -10,9 +11,15 @@ export function Stage3D(): React.ReactElement | null {
   if (!quality.webgl) return null;
 
   return (
-    <div className="absolute inset-0 w-full h-full pointer-events-none z-10 overflow-hidden">
+    <div
+      className="absolute inset-0 w-full h-full pointer-events-none z-10 overflow-hidden"
+      style={{ pointerEvents: 'none' }}
+    >
       <Canvas
         frameloop="demand"
+        style={{ pointerEvents: 'none' }}
+        eventSource={undefined}
+        events={undefined}
         dpr={[1, quality.maxDpr]}
         camera={{ fov: 35, near: 1, far: 8000 }}
         gl={{
@@ -30,6 +37,7 @@ export function Stage3D(): React.ReactElement | null {
         <Suspense fallback={null}>
           <WrapperCube />
           <WrapperRings />
+          <FiberOptics />
         </Suspense>
       </Canvas>
     </div>

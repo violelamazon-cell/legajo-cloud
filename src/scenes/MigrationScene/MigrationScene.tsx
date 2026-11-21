@@ -1,62 +1,372 @@
-import React from 'react';
+import React, { useRef, useState, useEffect, useCallback, useSyncExternalStore } from 'react';
+import gsap from 'gsap';
+import { PLATE_WIDTH, PLATE_HEIGHT, MAC_OFFSET_X } from '../../config/calibration';
+import { MacScreen } from '../../components/MacScreen/MacScreen';
+import { CalibMac } from '../../components/MacScreen/CalibMac';
+import { sceneStore, applyRig } from '../../animations/rig';
+import { getPrefersReducedMotion } from '../../config/motion';
+import { CloudScreen, type CloudScreenHandle } from './CloudScreen';
+
+const NAV_HEIGHT = 56;
 
 export const MigrationScene: React.FC = () => {
+  const [scale, setScale] = useState(1);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const promptRef = useRef<HTMLDivElement>(null);
+  const cloudScreenRef = useRef<CloudScreenHandle>(null);
+  const bootingRef = useRef(false);
+
+  // Suscripción reactiva a sceneStore
+  const currentScene = useSyncExternalStore(sceneStore.subscribe, () => sceneStore.get().scene);
+  const isBooted = useSyncExternalStore(sceneStore.subscribe, () => sceneStore.get().migrationBooted);
+
+  // Fase B: estamos en la escena 04 de reposo, transferencia completada y MacBook esperando clic
+  const isWaitingClick = currentScene === 3 && !isBooted;
+
+  const updateScale = useCallback(() => {
+    if (typeof window === 'undefined') return;
+    const availW = window.innerWidth;
+    const availH = Math.max(window.innerHeight - NAV_HEIGHT, 100);
+    const s = Math.min(availW / PLATE_WIDTH, availH / PLATE_HEIGHT);
+    setScale(s > 0 ? s : 1);
+  }, []);
+
+  useEffect(() => {
+    updateScale();
+    window.addEventListener('resize', updateScale);
+    return () => window.removeEventListener('resize', updateScale);
+  }, [updateScale]);
+
+  /** Oculta el prompt con fade-out suave */
+  const hidePrompt = useCallback(() => {
+    if (promptRef.current) {
+      gsap.to(promptRef.current, {
+        opacity: 0,
+        duration: 0.18,
+        ease: 'power1.in',
+        onComplete() {
+          if (promptRef.current) promptRef.current.style.display = 'none';
+        },
+      });
+    }
+  }, []);
+
+  /** Dispara la secuencia deliberada de encendido de la MacBook */
+  const triggerMacBoot = useCallback(() => {
+    if (isBooted || bootingRef.current) return;
+    bootingRef.current = true;
+
+    hidePrompt();
+
+    const cs = cloudScreenRef.current;
+
+    // Accesibilidad prefers-reduced-motion
+    if (getPrefersReducedMotion()) {
+      if (cs) {
+        gsap.set(cs.container, { visibility: 'visible', opacity: 1 });
+        gsap.set(cs.bg, { opacity: 1 });
+        gsap.set(cs.frame, { autoAlpha: 1, scale: 1 });
+        gsap.set(cs.dots, { autoAlpha: 1, scale: 1 });
+        gsap.set(cs.title, { autoAlpha: 1, y: 0 });
+        gsap.set(cs.subtitle, { autoAlpha: 1, y: 0 });
+        gsap.set(cs.cloudIcon, { autoAlpha: 1, scale: 1 });
+        gsap.set(cs.progressFill, { width: '100%' });
+        if (cs.progressPercent) cs.progressPercent.innerText = '100 %';
+        gsap.set(cs.waves, { autoAlpha: 1, y: 0 });
+        gsap.set(cs.flashLine, { opacity: 0 });
+      }
+      gsap.set('.mac-floor-glow', { opacity: 1 });
+      sceneStore.set({ migrationBooted: true });
+      applyRig();
+      return;
+    }
+
+    if (!cs) return;
+
+    // ── Secuencia Cinematográfica de Encendido en 4 Fases con GSAP ──────────
+    const tl = gsap.timeline({
+      defaults: { ease: 'power2.out' },
+      onComplete() {
+        sceneStore.set({ migrationBooted: true });
+        applyRig();
+      },
+    });
+
+    // Estados iniciales en t=0
+    gsap.set(cs.container, { visibility: 'visible', opacity: 1 });
+    gsap.set(cs.bg, { opacity: 0, filter: 'none' });
+    gsap.set(cs.frame, { autoAlpha: 0, scale: 0.98 });
+    gsap.set(cs.dots, { autoAlpha: 0, scale: 0.5 });
+    gsap.set(cs.title, { autoAlpha: 0, y: -8 });
+    gsap.set(cs.subtitle, { autoAlpha: 0, y: -6 });
+    gsap.set(cs.cloudIcon, { autoAlpha: 0, scale: 0.8 });
+    gsap.set(cs.progressFill, { width: '0%' });
+    if (cs.progressPercent) cs.progressPercent.innerText = '0 %';
+    gsap.set(cs.waves, { autoAlpha: 0, y: 15 });
+    gsap.set(cs.flashLine, { opacity: 0, scaleX: 0, scaleY: 1 });
+
+    // ── FASE 1: ACTIVACIÓN ──────────────────────────────────────────────────
+    // Destello horizontal cian/blanco dentro de la pantalla
+    tl.to(cs.flashLine, { opacity: 1, scaleX: 1, duration: 0.16, ease: 'power2.out' }, 0);
+    // El destello se expande verticalmente revelando el fondo luminoso
+    tl.to(cs.flashLine, { scaleY: 120, opacity: 0.85, duration: 0.28, ease: 'power3.inOut' }, 0.14);
+    tl.to(cs.bg, { opacity: 1, duration: 0.35, ease: 'power1.out' }, 0.20);
+    tl.to(cs.flashLine, { opacity: 0, duration: 0.22, ease: 'power2.in' }, 0.38);
+
+    // ── FASE 2: CONSTRUCCIÓN DE LA INTERFAZ ─────────────────────────────────
+    // Aparece progresivamente el marco de la ventana
+    tl.to(cs.frame, { autoAlpha: 1, scale: 1, duration: 0.38, ease: 'power2.out' }, 0.45);
+    // Entran los 3 indicadores circulares en la esquina superior izquierda
+    tl.to(cs.dots, { autoAlpha: 1, scale: 1, duration: 0.25, ease: 'back.out(2)' }, 0.60);
+    // Aparecen los textos con entrada escalonada
+    tl.to(cs.title, { autoAlpha: 1, y: 0, duration: 0.30, ease: 'power2.out' }, 0.70);
+    tl.to(cs.subtitle, { autoAlpha: 1, y: 0, duration: 0.28, ease: 'power2.out' }, 0.82);
+
+    // ── FASE 3: ACTIVACIÓN CLOUD ───────────────────────────────────────────
+    // El ícono de nube se dibuja y entra progresivamente
+    tl.to(cs.cloudIcon, { autoAlpha: 1, scale: 1, duration: 0.40, ease: 'back.out(1.5)' }, 0.95);
+    // Resplandor ambiental de piso de la MacBook moderna
+    tl.to('.mac-floor-glow', { opacity: 1, duration: 0.60, ease: 'power2.out' }, 1.0);
+    // La barra de progreso se llena desde 0 hasta 100 % con contador numérico sincronizado
+    const pctProxy = { val: 0 };
+    tl.to(cs.progressFill, { width: '100%', duration: 1.25, ease: 'power2.inOut' }, 1.10);
+    tl.to(
+      pctProxy,
+      {
+        val: 100,
+        duration: 1.25,
+        ease: 'power2.inOut',
+        onUpdate: () => {
+          if (cs.progressPercent) {
+            cs.progressPercent.innerText = `${Math.round(pctProxy.val)} %`;
+          }
+        },
+      },
+      1.10
+    );
+    // Las ondas digitales inferiores aparecen y comienzan su movimiento sutil
+    tl.to(cs.waves, { autoAlpha: 1, y: 0, duration: 0.50, ease: 'power2.out' }, 1.35);
+
+    // ── FASE 4: ESTADO FINAL ────────────────────────────────────────────────
+    // Destello breve de coronación en 100% y estabilización en estado permanente
+    tl.to(cs.bg, { filter: 'brightness(1.22)', duration: 0.18, yoyo: true, repeat: 1 }, 2.35);
+  }, [isBooted, hidePrompt]);
+
+  const handleInteraction = useCallback(
+    (e?: React.SyntheticEvent | Event) => {
+      if (e && typeof e.stopPropagation === 'function') {
+        e.stopPropagation();
+      }
+      triggerMacBoot();
+    },
+    [triggerMacBoot]
+  );
+
+  // Listener global de respaldo cuando isWaitingClick es true (permite clic en laptop o mensaje)
+  useEffect(() => {
+    if (!isWaitingClick) return;
+    const onAction = (e: MouseEvent | TouchEvent | PointerEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target && target.closest('header, nav, button, [role="button"]')) {
+        return;
+      }
+      triggerMacBoot();
+    };
+
+    window.addEventListener('click', onAction);
+    window.addEventListener('pointerdown', onAction);
+    window.addEventListener('touchend', onAction);
+    return () => {
+      window.removeEventListener('click', onAction);
+      window.removeEventListener('pointerdown', onAction);
+      window.removeEventListener('touchend', onAction);
+    };
+  }, [isWaitingClick, triggerMacBoot]);
+
+  // Manejo de persistencia: si ya fue encendida, mantener siempre el estado final encendido
+  useEffect(() => {
+    if (isBooted) {
+      bootingRef.current = true;
+      const cs = cloudScreenRef.current;
+      if (cs) {
+        gsap.set(cs.container, { visibility: 'visible', opacity: 1 });
+        gsap.set(cs.bg, { opacity: 1, filter: 'none' });
+        gsap.set(cs.frame, { autoAlpha: 1, scale: 1 });
+        gsap.set(cs.dots, { autoAlpha: 1, scale: 1 });
+        gsap.set(cs.title, { autoAlpha: 1, y: 0 });
+        gsap.set(cs.subtitle, { autoAlpha: 1, y: 0 });
+        gsap.set(cs.cloudIcon, { autoAlpha: 1, scale: 1 });
+        gsap.set(cs.progressFill, { width: '100%' });
+        if (cs.progressPercent) cs.progressPercent.innerText = '100 %';
+        gsap.set(cs.waves, { autoAlpha: 1, y: 0 });
+        gsap.set(cs.flashLine, { opacity: 0 });
+      }
+      gsap.set('.mac-floor-glow', { opacity: 1 });
+      if (promptRef.current) {
+        gsap.set(promptRef.current, { opacity: 0, display: 'none' });
+      }
+    }
+  }, [isBooted]);
+
   return (
     <section
       id="scene-4"
-      className="absolute inset-0 flex items-center select-none overflow-visible pointer-events-none"
+      className={`absolute inset-0 select-none z-10 ${
+        isWaitingClick ? 'pointer-events-auto' : 'pointer-events-none'
+      }`}
       style={{ visibility: 'hidden', opacity: 0 }}
     >
-      {/* Track horizontal continuo de 2.5 viewports de recorrido vertical */}
-      <div className="flex items-center gap-16 pl-24 w-[3600px] pointer-events-auto">
-        {/* Terminal Origen */}
-        <div className="w-[450px] shrink-0 border border-[#1b1d22] bg-[#0c0d10]/90 p-6 rounded-lg shadow-2xl backdrop-blur">
-          <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#1b1d22]">
-            <span className="font-mono text-xs text-[#3dff8a] font-bold">[04.1] NODO ORIGEN</span>
-            <span className="font-mono text-[10px] text-zinc-500">MAINFRAME</span>
-          </div>
-          <div className="font-mono text-sm font-bold text-zinc-200 mb-2">CENTRO DE DATOS ON-PREMISE</div>
-          <div className="font-mono text-xs text-zinc-400 space-y-1">
-            <div>&gt; EXTRACCIÓN EN LOTE ACTIVA</div>
-            <div>&gt; PROTOCOLO: SECURE STREAM</div>
-            <div>&gt; INTEGRIDAD: 100% VALIDADOS</div>
-          </div>
-        </div>
+      {/* Contenedor desplazado horizontalmente en X = +1920px (coordenadas de mundo) */}
+      <div
+        className={`absolute inset-0 flex items-center justify-center w-full h-full ${
+          isWaitingClick ? 'pointer-events-auto' : 'pointer-events-none'
+        }`}
+        onClick={isWaitingClick ? handleInteraction : undefined}
+        onPointerDown={isWaitingClick ? handleInteraction : undefined}
+        style={{
+          transform: `translateX(${MAC_OFFSET_X}px)`,
+        }}
+      >
+        <div
+          ref={containerRef}
+          onClick={isWaitingClick ? handleInteraction : undefined}
+          onPointerDown={isWaitingClick ? handleInteraction : undefined}
+          style={{
+            width: `${PLATE_WIDTH}px`,
+            height: `${PLATE_HEIGHT}px`,
+            transform: `scale(${scale})`,
+            transformOrigin: 'center center',
+            flexShrink: 0,
+            cursor: isWaitingClick ? 'pointer' : 'default',
+            pointerEvents: isWaitingClick ? 'auto' : 'none',
+          }}
+          className="mac-plate relative select-none"
+        >
+          {/* Resplandor ambiental de piso para la MacBook moderna */}
+          <div
+            className="mac-floor-glow"
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: '76%',
+              width: '1150px',
+              height: '180px',
+              transform: 'translateX(-50%)',
+              background:
+                'radial-gradient(ellipse at 50% 0%, rgba(34, 230, 216, 0.40), rgba(165, 107, 255, 0.25) 45%, transparent 70%)',
+              filter: 'blur(22px)',
+              mixBlendMode: 'screen',
+              opacity: 0,
+              pointerEvents: 'none',
+            }}
+          />
 
-        {/* Conducto / Línea de Migración */}
-        <div className="w-[1000px] shrink-0 flex flex-col items-center">
-          <div className="font-mono text-xs text-zinc-400 mb-2 tracking-widest flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#22e6d8] animate-ping" />
-            CANAL DE MIGRACIÓN HORIZONTAL (2.5 VIEWPORTS // SCROLL CONTINUO)
-          </div>
-          <div className="w-full h-2 rounded-full bg-gradient-to-r from-[#3dff8a] via-[#22e6d8] to-[#a56bff] relative shadow-[0_0_20px_rgba(34,230,216,0.3)]">
-            <div className="absolute -top-3 left-1/4 -translate-x-1/2 px-2 py-0.5 rounded bg-zinc-900 border border-zinc-700 font-mono text-[10px] text-zinc-300">
-              25% SINK
-            </div>
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded bg-zinc-900 border border-zinc-700 font-mono text-[10px] text-zinc-300">
-              50% BRIDGE
-            </div>
-            <div className="absolute -top-3 left-3/4 -translate-x-1/2 px-2 py-0.5 rounded bg-zinc-900 border border-zinc-700 font-mono text-[10px] text-zinc-300">
-              75% REPLICATION
-            </div>
-          </div>
-          <div className="mt-3 font-mono text-[11px] text-zinc-500">
-            ← RETRO / MAINFRAME &nbsp;&nbsp;|&nbsp;&nbsp; TRANSICIÓN SIN SNAP &nbsp;&nbsp;|&nbsp;&nbsp; CLOUD / MACBOOK →
-          </div>
-        </div>
+          {/* Reflejo difuso en piso */}
+          <img
+            src="/plates/mac-off-transparent.png"
+            alt=""
+            aria-hidden="true"
+            className="mac-plate--reflection"
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: '84%',
+              width: '100%',
+              transform: 'scaleY(-1)',
+              opacity: 0.25,
+              filter: 'blur(3px)',
+              pointerEvents: 'none',
+              WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.45), transparent 38%)',
+              maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.45), transparent 38%)',
+            }}
+          />
 
-        {/* Terminal Destino */}
-        <div className="w-[450px] shrink-0 border border-[#1b1d22] bg-[#0c0d10]/90 p-6 rounded-lg shadow-2xl backdrop-blur">
-          <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#1b1d22]">
-            <span className="font-mono text-xs text-[#a56bff] font-bold">[04.2] NODO DESTINO</span>
-            <span className="font-mono text-[10px] text-zinc-500">CLOUD TARGET</span>
-          </div>
-          <div className="font-mono text-sm font-bold text-zinc-200 mb-2">INFRAESTRUCTURA CLOUD NATIVA</div>
-          <div className="font-mono text-xs text-zinc-400 space-y-1">
-            <div>&gt; INGESTA EN TIEMPO REAL</div>
-            <div>&gt; CLUSTERS K8S DESPLEGADOS</div>
-            <div>&gt; SINCRONIZACIÓN: ACTIVA</div>
-          </div>
+          {/* Plate de la MacBook apagada con transparencia real */}
+          <img
+            src="/plates/mac-off-transparent.png"
+            alt="MacBook Pro moderna (Off)"
+            onClick={isWaitingClick ? handleInteraction : undefined}
+            onPointerDown={isWaitingClick ? handleInteraction : undefined}
+            className="mac-plate--off absolute inset-0 w-full h-full object-contain select-none z-10"
+            style={{
+              cursor: isWaitingClick ? 'pointer' : 'default',
+              pointerEvents: isWaitingClick ? 'auto' : 'none',
+            }}
+          />
+
+          {/* Pantalla nativa Cloud construida íntegramente con React, CSS y SVG */}
+          <MacScreen>
+            <CloudScreen ref={cloudScreenRef} isBooted={isBooted} />
+          </MacScreen>
+
+          {typeof window !== 'undefined' && window.location.search.includes('calib') && (
+            <CalibMac />
+          )}
+
+          {/* Destello sutil y puntual localizado exclusivamente en el puerto USB-C izquierdo */}
+          <div
+            className="mac-arrival-flash"
+            style={{
+              position: 'absolute',
+              left: '176px',
+              top: '614px',
+              width: '42px',
+              height: '24px',
+              transform: 'translate(-50%, -50%)',
+              background:
+                'radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.95) 0%, rgba(34, 230, 216, 0.70) 50%, transparent 100%)',
+              filter: 'blur(2px)',
+              mixBlendMode: 'screen',
+              opacity: 0,
+              pointerEvents: 'none',
+              zIndex: 30,
+            }}
+          />
+
+          {/* Prompt centrado sobre la MacBook — FASE B: Espera interactiva */}
+          {isWaitingClick && (
+            <div
+              ref={promptRef}
+              className="mac-boot-prompt"
+              aria-live="polite"
+              aria-label="Instrucción de encendido del nuevo sistema"
+              onClick={handleInteraction}
+              onPointerDown={handleInteraction}
+              style={{
+                position: 'absolute',
+                top: '46%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                textAlign: 'center',
+                pointerEvents: 'auto',
+                zIndex: 40,
+                whiteSpace: 'nowrap',
+                cursor: 'pointer',
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '17px',
+                  fontWeight: 600,
+                  color: 'rgba(34, 230, 216, 0.95)',
+                  letterSpacing: '0.18em',
+                  textShadow: '0 0 14px rgba(34, 230, 216, 0.65)',
+                  padding: '10px 22px',
+                  borderRadius: '24px',
+                  backgroundColor: 'rgba(12, 13, 16, 0.85)',
+                  border: '1px solid rgba(34, 230, 216, 0.50)',
+                  backdropFilter: 'blur(8px)',
+                  boxShadow:
+                    '0 0 25px rgba(34, 230, 216, 0.25), inset 0 0 12px rgba(34, 230, 216, 0.12)',
+                  transition: 'all 0.2s ease',
+                }}
+                className="hover:scale-105 active:scale-95 transition-transform"
+              >
+                HACÉ CLICK PARA INICIAR
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </section>

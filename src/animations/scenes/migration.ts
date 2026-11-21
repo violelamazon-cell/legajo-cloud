@@ -32,6 +32,18 @@ export const buildMigration: SceneBuilder = (tl) => {
     t,
   );
 
+  // ── 3b. Ocultación controlada y reversible de la PC retro y cápsula wrapper ──
+  tl.to(
+    ['#scene-1', '.wrapper-floor', '.wrap-label', '.crt-layer--wrapper'],
+    { autoAlpha: 0, duration: DUR * 0.45, ease: 'power1.inOut', onUpdate: fxUpdate },
+    t + DUR * 0.25,
+  );
+  tl.to(
+    fx,
+    { wrapOpacity: 0, ringsOpacity: 0, duration: DUR * 0.45, ease: 'power1.inOut', onUpdate: fxUpdate },
+    t + DUR * 0.25,
+  );
+
   // ── 4. Fondo: oscuro (#050505) → carbón (#111318) a mitad del paneo ──────
   tl.to(
     '#migration-bg-overlay',
@@ -92,10 +104,10 @@ export const buildMigration: SceneBuilder = (tl) => {
     arrivalT + 0.08,
   );
 
-  // ── 8. Atenuación de los haces tras completar la transferencia ────────────
+  // ── 8. Atenuación completa de los haces tras completar la transferencia ──
   tl.to(
     fx,
-    { beamsFade: 0.85, duration: 0.35, ease: 'power2.in', onUpdate: fxUpdate },
+    { beamsFade: 1.0, duration: 0.35, ease: 'power2.in', onUpdate: fxUpdate },
     arrivalT + 0.10,
   );
 

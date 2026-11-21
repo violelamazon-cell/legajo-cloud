@@ -69,13 +69,30 @@ export const MAC_PLATE = {
 export const MAC_SCREEN = { l: 0.200, t: 0.146, w: 0.603, h: 0.547 };
 // Control: (MAC_PLATE.w * w) / (MAC_PLATE.h * h) debe dar ~1.65
 
+export function getPlateScale(winW?: number, winH?: number): number {
+  const w = winW ?? (typeof window !== 'undefined' ? window.innerWidth : 1920);
+  const h = winH ?? (typeof window !== 'undefined' ? window.innerHeight : 1080);
+  const availH = Math.max(h - 56, 100);
+  const s = Math.min(w / PLATE_WIDTH, availH / PLATE_HEIGHT);
+  return s > 0 ? s : 1;
+}
+
 export function macScreenZoom() {
-  const w = MAC_PLATE.w * MAC_SCREEN.w;
-  const h = MAC_PLATE.h * MAC_SCREEN.h;
-  // centro de la pantalla en coordenadas de mundo (px, y hacia abajo), relativo al centro de #world
-  const cx = MAC_PLATE.x + (MAC_SCREEN.l + MAC_SCREEN.w / 2 - 0.5) * MAC_PLATE.w;
-  const cy = MAC_PLATE.y + (MAC_SCREEN.t + MAC_SCREEN.h / 2 - 0.5) * MAC_PLATE.h;
-  const s = Math.min((window.innerWidth * 0.94) / w, (window.innerHeight * 0.94) / h);
-  return { s, tx: -cx * s, ty: -cy * s };
+  const winW = typeof window !== 'undefined' ? window.innerWidth : 1920;
+  const winH = typeof window !== 'undefined' ? window.innerHeight : 1080;
+  const scale = getPlateScale(winW, winH);
+
+  const pw = MAC_PLATE.w * scale;
+  const ph = MAC_PLATE.h * scale;
+
+  const w = pw * MAC_SCREEN.w;
+  const h = ph * MAC_SCREEN.h;
+
+  // Centro de la pantalla en coordenadas de mundo (px, y hacia abajo), relativo al centro de #world
+  const cx = MAC_PLATE.x + (MAC_SCREEN.l + MAC_SCREEN.w / 2 - 0.5) * pw;
+  const cy = MAC_PLATE.y + (MAC_SCREEN.t + MAC_SCREEN.h / 2 - 0.5) * ph;
+
+  const s = Math.min((winW * 0.94) / w, (winH * 0.94) / h);
+  return { s, tx: -cx * s, ty: -cy * s, cx, cy };
 }
 

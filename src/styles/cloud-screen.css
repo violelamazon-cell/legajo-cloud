@@ -1,0 +1,344 @@
+/* ============================================================
+   CloudScreen — Interfaz Cloud nativa para la MacBook (Escena 04)
+   Dimensionado con CQW relativo a .mac-screen (100cqw = ~780px)
+   ============================================================ */
+
+/* ── Contenedor principal ─────────────────────────────────── */
+.cloud-screen-container {
+  overflow: hidden;
+  background-color: #07090e;
+  box-shadow: inset 0 0 5.13cqw rgba(0, 0, 0, 0.95);
+  user-select: none;
+  pointer-events: none;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Fondo atmosférico ───────────────────────────────────── */
+.cloud-screen-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 65% 45% at 50% 18%, rgba(34, 230, 216, 0.16) 0%, transparent 70%),
+    radial-gradient(ellipse 70% 50% at 50% 85%, rgba(165, 107, 255, 0.14) 0%, transparent 65%),
+    linear-gradient(180deg, rgba(8, 11, 18, 0.95) 0%, rgba(6, 8, 14, 0.98) 100%);
+  pointer-events: none;
+}
+
+/* ── Grilla tecnológica ──────────────────────────────────── */
+.cloud-screen-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(34, 230, 216, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 230, 216, 0.04) 1px, transparent 1px);
+  background-size: 4.1cqw 4.1cqw;
+  background-position: center center;
+  mask-image: radial-gradient(ellipse at center, black 40%, transparent 95%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 40%, transparent 95%);
+  pointer-events: none;
+}
+
+/* ── Barra superior del sistema ──────────────────────────── */
+.cloud-top-bar {
+  position: relative;
+  z-index: 10;
+  flex-shrink: 0;
+  height: 4.62cqw;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2.05cqw;
+  background: rgba(10, 14, 22, 0.80);
+  backdrop-filter: blur(0.51cqw);
+}
+
+.cloud-window-dots {
+  display: flex;
+  align-items: center;
+  gap: 0.9cqw;
+  flex-shrink: 0;
+}
+
+.cloud-dot {
+  width: 1.15cqw;
+  height: 1.15cqw;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.cloud-dot--cyan {
+  background-color: #22e6d8;
+  box-shadow: 0 0 0.9cqw rgba(34, 230, 216, 0.85);
+}
+
+.cloud-dot--turquoise {
+  background-color: #3dff8a;
+  box-shadow: 0 0 0.9cqw rgba(61, 255, 138, 0.85);
+}
+
+.cloud-dot--violet {
+  background-color: #a56bff;
+  box-shadow: 0 0 0.9cqw rgba(165, 107, 255, 0.85);
+}
+
+.cloud-top-bar-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 1.28cqw;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: rgba(34, 230, 216, 0.60);
+  text-transform: uppercase;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.cloud-top-bar-status {
+  font-family: var(--font-mono, monospace);
+  font-size: 1.28cqw;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: #3dff8a;
+  display: flex;
+  align-items: center;
+  gap: 0.77cqw;
+  flex-shrink: 0;
+}
+
+.cloud-status-dot {
+  width: 0.77cqw;
+  height: 0.77cqw;
+  border-radius: 50%;
+  background-color: #3dff8a;
+  box-shadow: 0 0 0.77cqw rgba(61, 255, 138, 0.9);
+  animation: cloudStatusPulse 2s ease-in-out infinite;
+}
+
+@keyframes cloudStatusPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* Línea separadora debajo de la barra */
+.cloud-top-bar-line {
+  flex-shrink: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(34, 230, 216, 0.35) 20%,
+    rgba(34, 230, 216, 0.35) 80%,
+    transparent 100%
+  );
+}
+
+/* ── Cuerpo principal — dos columnas ─────────────────────── */
+.cloud-main-body {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  min-height: 0;
+  position: relative;
+  z-index: 5;
+  /* Deja espacio para las ondas inferiores */
+  padding-bottom: 12.82cqw;
+}
+
+/* Columna izquierda — Textos + Barra de progreso */
+.cloud-left-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 3.08cqw 3.59cqw 2.56cqw 4.1cqw;
+  gap: 1.28cqw;
+  min-width: 0;
+}
+
+/* Columna derecha — Ícono de nube */
+.cloud-right-col {
+  flex-shrink: 0;
+  width: 35.9cqw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.05cqw 3.59cqw 2.56cqw 0;
+}
+
+/* ── Textos ──────────────────────────────────────────────── */
+.cloud-title {
+  font-family: var(--font-mono, monospace);
+  font-size: 2.31cqw;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: #22e6d8;
+  text-shadow: 0 0 1.54cqw rgba(34, 230, 216, 0.65);
+  line-height: 1.3;
+}
+
+.cloud-subtitle {
+  font-family: var(--font-mono, monospace);
+  font-size: 1.79cqw;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: #a56bff;
+  text-shadow: 0 0 1.28cqw rgba(165, 107, 255, 0.65);
+  display: flex;
+  align-items: center;
+  gap: 0.51cqw;
+  line-height: 1.4;
+}
+
+.cloud-cursor {
+  display: inline-block;
+  width: 0.9cqw;
+  height: 1.54cqw;
+  background-color: #a56bff;
+  box-shadow: 0 0 1.03cqw rgba(165, 107, 255, 0.8);
+  animation: cloudCursorBlink 1s infinite steps(2, start);
+}
+
+@keyframes cloudCursorBlink {
+  to { visibility: hidden; }
+}
+
+/* Separador sutil entre textos y barra de progreso */
+.cloud-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(34, 230, 216, 0.30) 0%,
+    rgba(165, 107, 255, 0.20) 60%,
+    transparent 100%
+  );
+  margin: 0.77cqw 0;
+}
+
+/* ── Barra de progreso ───────────────────────────────────── */
+.cloud-progress-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.03cqw;
+  width: 100%;
+  z-index: 10;
+}
+
+.cloud-progress-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 1.15cqw;
+  font-weight: 600;
+  letter-spacing: 0.20em;
+  color: rgba(34, 230, 216, 0.70);
+  text-transform: uppercase;
+}
+
+.cloud-progress-track {
+  width: 100%;
+  height: 1.54cqw;
+  background: rgba(14, 18, 28, 0.85);
+  border: 1px solid rgba(34, 230, 216, 0.38);
+  border-radius: 2.56cqw;
+  padding: 0.26cqw;
+  box-shadow:
+    inset 0 0 1.03cqw rgba(0, 0, 0, 0.8),
+    0 0 1.28cqw rgba(34, 230, 216, 0.12);
+  overflow: hidden;
+  position: relative;
+}
+
+.cloud-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #22e6d8 0%, #3dff8a 45%, #a56bff 100%);
+  border-radius: 2.56cqw;
+  box-shadow:
+    0 0 1.28cqw rgba(34, 230, 216, 0.75),
+    0 0 2.31cqw rgba(165, 107, 255, 0.55);
+  position: relative;
+  transition: width 0.05s linear;
+}
+
+.cloud-progress-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cloud-progress-percent {
+  font-family: var(--font-mono, monospace);
+  font-size: 3.08cqw;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: #22e6d8;
+  text-shadow: 0 0 1.79cqw rgba(34, 230, 216, 0.75);
+}
+
+/* ── Ícono SVG de nube ───────────────────────────────────── */
+.cloud-icon-svg {
+  filter:
+    drop-shadow(0 0 2.05cqw rgba(34, 230, 216, 0.55))
+    drop-shadow(0 0 3.59cqw rgba(165, 107, 255, 0.35));
+  width: 28.21cqw;
+  height: 22.44cqw;
+}
+
+/* ── Ondas digitales inferiores ──────────────────────────── */
+.cloud-waves-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 14.1cqw;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 6;
+}
+
+.cloud-wave-path--primary {
+  animation: cloudWaveFloat 6s ease-in-out infinite alternate;
+  transform-origin: center bottom;
+}
+
+.cloud-wave-path--secondary {
+  animation: cloudWaveFloat 8s ease-in-out infinite alternate-reverse;
+  transform-origin: center bottom;
+}
+
+@keyframes cloudWaveFloat {
+  0%   { transform: translateY(0px) scaleY(1); }
+  100% { transform: translateY(-0.51cqw) scaleY(1.06); }
+}
+
+/* ── Flash de encendido ──────────────────────────────────── */
+.cloud-screen-flash-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 0.51cqw;
+  background: #ffffff;
+  box-shadow:
+    0 0 3.85cqw #ffffff,
+    0 0 7.69cqw rgba(34, 230, 216, 0.9),
+    0 0 11.54cqw rgba(165, 107, 255, 0.7);
+  transform: translateY(-50%) scaleX(0);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 50;
+}
+
+#cloud-screen.cloud-screen-container.mac-ui {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+

@@ -1,13 +1,12 @@
 import React, { useRef, useState, useEffect, useCallback, useSyncExternalStore } from 'react';
 import gsap from 'gsap';
-import { PLATE_WIDTH, PLATE_HEIGHT, MAC_OFFSET_X } from '../../config/calibration';
+import { PLATE_WIDTH, PLATE_HEIGHT, MAC_OFFSET_X, getPlateScale } from '../../config/calibration';
 import { MacScreen } from '../../components/MacScreen/MacScreen';
 import { CalibMac } from '../../components/MacScreen/CalibMac';
 import { sceneStore, applyRig } from '../../animations/rig';
 import { getPrefersReducedMotion } from '../../config/motion';
 import { CloudScreen, type CloudScreenHandle } from './CloudScreen';
-
-const NAV_HEIGHT = 56;
+import { StrategiesLayer } from '../StrategiesScene/StrategiesLayer';
 
 export const MigrationScene: React.FC = () => {
   const [scale, setScale] = useState(1);
@@ -18,17 +17,22 @@ export const MigrationScene: React.FC = () => {
 
   // Suscripción reactiva a sceneStore
   const currentScene = useSyncExternalStore(sceneStore.subscribe, () => sceneStore.get().scene);
-  const isBooted = useSyncExternalStore(sceneStore.subscribe, () => sceneStore.get().migrationBooted);
+  const [isBooted, setIsBooted] = useState(() => sceneStore.get().migrationBooted);
+
+  // Sincronizar si migrationBooted cambia en sceneStore
+  useEffect(() => {
+    return sceneStore.subscribe(() => {
+      if (sceneStore.get().migrationBooted && !isBooted) {
+        setIsBooted(true);
+      }
+    });
+  }, [isBooted]);
 
   // Fase B: estamos en la escena 04 de reposo, transferencia completada y MacBook esperando clic
-  const isWaitingClick = currentScene === 3 && !isBooted;
+  const isWaitingClick = currentScene === 3 && !isBooted && !sceneStore.get().migrationBootStarted;
 
   const updateScale = useCallback(() => {
-    if (typeof window === 'undefined') return;
-    const availW = window.innerWidth;
-    const availH = Math.max(window.innerHeight - NAV_HEIGHT, 100);
-    const s = Math.min(availW / PLATE_WIDTH, availH / PLATE_HEIGHT);
-    setScale(s > 0 ? s : 1);
+    setScale(getPlateScale());
   }, []);
 
   useEffect(() => {
@@ -76,7 +80,8 @@ export const MigrationScene: React.FC = () => {
         gsap.set(cs.flashLine, { opacity: 0 });
       }
       gsap.set('.mac-floor-glow', { opacity: 1 });
-      sceneStore.set({ migrationBooted: true });
+      sceneStore.set({ migrationBootStarted: true, migrationBooted: true });
+      setIsBooted(true);
       applyRig();
       return;
     }
@@ -88,6 +93,7 @@ export const MigrationScene: React.FC = () => {
       defaults: { ease: 'power2.out' },
       onComplete() {
         sceneStore.set({ migrationBooted: true });
+        setIsBooted(true);
         applyRig();
       },
     });
@@ -157,6 +163,7 @@ export const MigrationScene: React.FC = () => {
       if (e && typeof e.stopPropagation === 'function') {
         e.stopPropagation();
       }
+      sceneStore.set({ migrationBootStarted: true });
       triggerMacBoot();
     },
     [triggerMacBoot]
@@ -170,6 +177,7 @@ export const MigrationScene: React.FC = () => {
       if (target && target.closest('header, nav, button, [role="button"]')) {
         return;
       }
+      sceneStore.set({ migrationBootStarted: true });
       triggerMacBoot();
     };
 
@@ -183,25 +191,11 @@ export const MigrationScene: React.FC = () => {
     };
   }, [isWaitingClick, triggerMacBoot]);
 
-  // Manejo de persistencia: si ya fue encendida, mantener siempre el estado final encendido
+  // Manejo de persistencia: si ya fue encendida, asegurar prompt oculto
   useEffect(() => {
-    if (isBooted) {
+    if (isBooted || sceneStore.get().migrationBooted) {
+      if (!isBooted) setIsBooted(true);
       bootingRef.current = true;
-      const cs = cloudScreenRef.current;
-      if (cs) {
-        gsap.set(cs.container, { visibility: 'visible', opacity: 1 });
-        gsap.set(cs.bg, { opacity: 1, filter: 'none' });
-        gsap.set(cs.frame, { autoAlpha: 1, scale: 1 });
-        gsap.set(cs.dots, { autoAlpha: 1, scale: 1 });
-        gsap.set(cs.title, { autoAlpha: 1, y: 0 });
-        gsap.set(cs.subtitle, { autoAlpha: 1, y: 0 });
-        gsap.set(cs.cloudIcon, { autoAlpha: 1, scale: 1 });
-        gsap.set(cs.progressFill, { width: '100%' });
-        if (cs.progressPercent) cs.progressPercent.innerText = '100 %';
-        gsap.set(cs.waves, { autoAlpha: 1, y: 0 });
-        gsap.set(cs.flashLine, { opacity: 0 });
-      }
-      gsap.set('.mac-floor-glow', { opacity: 1 });
       if (promptRef.current) {
         gsap.set(promptRef.current, { opacity: 0, display: 'none' });
       }
@@ -214,7 +208,6 @@ export const MigrationScene: React.FC = () => {
       className={`absolute inset-0 select-none z-10 ${
         isWaitingClick ? 'pointer-events-auto' : 'pointer-events-none'
       }`}
-      style={{ visibility: 'hidden', opacity: 0 }}
     >
       {/* Contenedor desplazado horizontalmente en X = +1920px (coordenadas de mundo) */}
       <div
@@ -281,10 +274,10 @@ export const MigrationScene: React.FC = () => {
             }}
           />
 
-          {/* Plate de la MacBook apagada con transparencia real */}
+          {/* Plate de la MacBook (hardware completo: marco, teclado, chasis) */}
           <img
             src="/plates/mac-off-transparent.png"
-            alt="MacBook Pro moderna (Off)"
+            alt="MacBook Pro moderna"
             onClick={isWaitingClick ? handleInteraction : undefined}
             onPointerDown={isWaitingClick ? handleInteraction : undefined}
             className="mac-plate--off absolute inset-0 w-full h-full object-contain select-none z-10"
@@ -294,9 +287,15 @@ export const MigrationScene: React.FC = () => {
             }}
           />
 
+          {/* Capa retro-layer para elementos que no pertenecen a la MacBook */}
+          <div className="retro-layer" style={{ display: 'none' }} aria-hidden="true" />
+
           {/* Pantalla nativa Cloud construida íntegramente con React, CSS y SVG */}
           <MacScreen>
-            <CloudScreen ref={cloudScreenRef} isBooted={isBooted} />
+            <div id="cloud-screen-wrapper" className="w-full h-full">
+              <CloudScreen ref={cloudScreenRef} isBooted={isBooted} />
+            </div>
+            <StrategiesLayer />
           </MacScreen>
 
           {typeof window !== 'undefined' && window.location.search.includes('calib') && (

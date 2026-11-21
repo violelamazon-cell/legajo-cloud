@@ -1,29 +1,41 @@
-import type { SceneBuilder } from '../timeline';
-import { rig, applyRig } from '../rig';
+import { rig } from '../rig';
 import { fx } from '../../three/fx';
+import { macScreenZoom } from '../../config/calibration';
+import type { SceneBuilder } from '../timeline';
 
-const fxUpdate = applyRig;
+// Factor de recorte: 1.0 = pantalla llena el viewport, 0.78 = el marco todavía es visible
+const CROP = 0.78;
 
 export const buildStrategies: SceneBuilder = (tl) => {
   const t = tl.duration();
 
-  // Garantizar estado inicial de fx para reversibilidad
-  tl.set(fx, { beamsFade: 1, arrivalFlash: 0 }, t);
+  // Zoom central uniforme hacia el centro geométrico de la pantalla de la MacBook.
+  // Calculamos la compensación exacta de tx y ty para mantener el centro de la pantalla
+  // fijo en el centro del viewport durante todo el zoom sin paneo lateral ni vertical.
+  const { s: sMax, cx = 1920, cy = 0 } = macScreenZoom();
+  const s = 1 + (sMax - 1) * CROP;
+  const tx = -cx * s;
+  const ty = -cy * s;
 
-  // La MacBook queda protagonista un momento (escena 04 visible)
-  // mientras la escena 05 aparece por encima con un fade suave
-  tl.to('#scene-4', { autoAlpha: 0, duration: 0.50, ease: 'power1.in', onUpdate: fxUpdate }, t + 0.15);
-  tl.to('#scene-5', { autoAlpha: 1, duration: 0.55, ease: 'power1.out', onUpdate: fxUpdate }, t + 0.35);
-
-  // La cámara hace un ligero zoom y continúa la transición de era
-  tl.to(rig, { s: 1.15, era: 0.85, duration: 1, ease: 'power2.inOut', onUpdate: fxUpdate }, t);
-
-  // El overlay de fondo carbón vuelve a negro al entrar en la escena 05
+  // ── Zoom central: escala y traslación compensada en un único tween ─────────
   tl.to(
-    '#migration-bg-overlay',
-    { opacity: 0, duration: 0.5, ease: 'power1.in', onUpdate: fxUpdate },
-    t,
+    rig,
+    {
+      s,
+      tx,
+      ty,
+      era: 1,
+      duration: 1.4,
+      ease: 'power3.inOut',
+    },
+    t
   );
-
-  tl.addLabel('s4', t + 1);
+  // Garantizar extinción total de haces de fibra al entrar en estrategias
+  tl.to(fx, { beamsFade: 1.0, duration: 0.2 }, t);
+  tl.to('.retro-layer',          { autoAlpha: 0, duration: 0.4 }, t + 0.3);
+  // Cross-fade suave entre la pantalla Cloud y las 3 tarjetas de Estrategias
+  tl.to('#cloud-screen-wrapper', { autoAlpha: 0, duration: 0.5, ease: 'power1.inOut' }, t + 0.4);
+  tl.to('.strat-layer',          { autoAlpha: 1, duration: 0.5, ease: 'power1.inOut' }, t + 0.4);
+  tl.to('.strat-card',           { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, t + 0.8);
+  tl.addLabel('s4', t + 2.0);
 };

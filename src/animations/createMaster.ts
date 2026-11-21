@@ -6,7 +6,7 @@ import { SCENE_COUNT } from './timeline';
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
-const FREE_RANGES: Array<[number, number]> = [[2, 3]]; // entre s2 y s3: paneo de la escena 04, sin snap
+const FREE_RANGES: Array<[number, number]> = [[2, 3], [3, 4]]; // entre s2-s3 (paneo) y s3-s4 (zoom estrategias): sin snap agresivo
 
 export function createMaster(stage: HTMLElement, tl: gsap.core.Timeline) {
   const stops = () => Array.from({ length: SCENE_COUNT }, (_, i) => tl.labels['s' + i] / tl.duration());
@@ -39,14 +39,19 @@ export function createMaster(stage: HTMLElement, tl: gsap.core.Timeline) {
         return next ?? clampedV;
       },
       duration: { min: 0.25, max: 0.8 },
-      delay: 0.08,
+      delay: 0.15,
       ease: 'power2.inOut',
     },
     onUpdate: (self) => {
       const s3Progress = tl.labels['s3'] / tl.duration();
-      if (!sceneStore.get().migrationBooted && self.progress > s3Progress) {
-        // Limitar el avance del scroll hasta el estado de reposo s3
-        self.scroll(self.start + s3Progress * (self.end - self.start));
+      const isBooted = sceneStore.get().migrationBooted;
+      if (!isBooted && self.progress > s3Progress) {
+        // Fijar la animación en el estado de reposo s3 sin desincronización
+        tl.progress(s3Progress);
+        const maxScroll = self.start + s3Progress * (self.end - self.start);
+        if (self.scroll() > maxScroll) {
+          self.scroll(maxScroll);
+        }
         sceneStore.set({ progress: s3Progress, scene: 3 });
         return;
       }

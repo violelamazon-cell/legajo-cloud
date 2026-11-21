@@ -95,7 +95,7 @@ export default function App() {
           <div
             id="world"
             ref={worldRef}
-            className="absolute inset-0 w-full h-full will-change-transform origin-center z-20 pointer-events-none"
+            className="absolute inset-0 w-full h-full origin-center z-20 pointer-events-none"
           >
             <BootScene />
             <WrapperScene />

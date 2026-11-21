@@ -11,7 +11,7 @@ export function buildMaster(builders: SceneBuilder[]) {
   tl.set(fx, FX_INITIAL, 0);
   tl.set('#pc-scalable-frame', { scale: 1 }, 0); // computadora al 100% en escenas 01 y 02
   tl.set('#scene-1', { autoAlpha: 1 }, 0);
-  tl.set(['#scene-2', '#scene-3', '#scene-4', '#scene-5', '#scene-6', '#scene-7'], { autoAlpha: 0 }, 0);
+  tl.set(['#scene-2', '#scene-3', '#scene-4', '#scene-5', '#scene-6', '#scene-7', '.strat-layer'], { autoAlpha: 0 }, 0);
   tl.set('#migration-bg-overlay', { opacity: 0 }, 0); // fondo carbón oculto al inicio
   tl.addLabel('s0', 0);
   builders.forEach((b) => b(tl));                  // escenas 02..07 en orden

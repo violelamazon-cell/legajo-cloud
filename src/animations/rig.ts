@@ -1,7 +1,13 @@
 import { invalidate } from '@react-three/fiber';
 
 type Listener = () => void;
-let state = { scene: 0, progress: 0, booted: false, migrationBooted: false };
+let state = {
+  scene: 0,
+  progress: 0,
+  booted: false,
+  migrationBootStarted: false,
+  migrationBooted: false,
+};
 const listeners = new Set<Listener>();
 
 export const sceneStore = {

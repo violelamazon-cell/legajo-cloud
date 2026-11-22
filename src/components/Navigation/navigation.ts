@@ -10,6 +10,8 @@ let st: ScrollTrigger | null = null;
 let tlRef: gsap.core.Timeline | null = null;
 let pending: number | null = null;
 
+export const isNavigating = () => pending !== null;
+
 export const bindNavigation = (trigger: ScrollTrigger, tl: gsap.core.Timeline) => {
   st = trigger;
   tlRef = tl;
@@ -26,6 +28,7 @@ export function goToStop(i: number) {
   if (i > 3 && !sceneStore.get().migrationBooted) return; // bloqueado hasta encender la MacBook
   if (!st || !tlRef) return;
   const idx = Math.max(0, Math.min(STOP_COUNT - 1, i));
+  if (idx === sceneStore.get().stop) return;
   pending = idx;
   const p = tlRef.labels['s' + idx] / tlRef.duration();
   const y = st.start + p * (st.end - st.start);
@@ -46,5 +49,6 @@ export function goToStop(i: number) {
 export const goToScene = (i: number) => goToStop(i);
 
 export const stepScene = (d: 1 | -1) => {
-  goToStop((pending ?? sceneStore.get().stop) + d);
+  if (pending !== null) return;
+  goToStop(sceneStore.get().stop + d);
 };

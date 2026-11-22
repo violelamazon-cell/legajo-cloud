@@ -15,6 +15,7 @@ export function useKeyboardNav() {
         }
       }
       if (e.altKey || e.ctrlKey || e.metaKey) return;
+      if (e.repeat && ['ArrowDown', 'ArrowRight', 'ArrowUp', 'ArrowLeft'].includes(e.key)) return;
       const map: Record<string, () => void> = {
         ArrowDown: () => stepScene(1),
         ArrowRight: () => stepScene(1),

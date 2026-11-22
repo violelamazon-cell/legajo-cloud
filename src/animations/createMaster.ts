@@ -3,6 +3,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import { sceneStore } from './rig';
 import { STOP_COUNT, sceneOfStop } from './timeline';
+import { isNavigating } from '../components/Navigation/navigation';
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
@@ -32,7 +33,9 @@ export function createMaster(stage: HTMLElement, tl: gsap.core.Timeline) {
     anticipatePin: 1,
     invalidateOnRefresh: true,
     snap: {
+      inertia: false,
       snapTo: (v: number, self?: ScrollTrigger) => {
+        if (isNavigating()) return self ? self.progress : v;
         const s = stops();
         const maxStop = sceneStore.get().migrationBooted ? 1.0 : s[3];
         const clampedV = Math.min(v, maxStop);
@@ -40,12 +43,11 @@ export function createMaster(stage: HTMLElement, tl: gsap.core.Timeline) {
         for (const [a, b] of FREE_RANGES) {
           if (clampedV > s[a] && clampedV < s[b]) return clampedV;
         }
-        const dir = self?.direction ?? 1;
+
         const validStops = s.filter((val) => val <= maxStop + 1e-4);
-        const next = dir > 0
-          ? validStops.find((x) => x >= clampedV - 1e-4)
-          : [...validStops].reverse().find((x) => x <= clampedV + 1e-4);
-        return next ?? clampedV;
+        return validStops.reduce((best, cur) =>
+          Math.abs(cur - clampedV) < Math.abs(best - clampedV) ? cur : best
+        );
       },
       duration: { min: 0.7, max: 1.6 },
       delay: 0.1,

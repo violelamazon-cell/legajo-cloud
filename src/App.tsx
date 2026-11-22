@@ -6,6 +6,7 @@ import { buildMaster } from './animations/timeline';
 import { createMaster } from './animations/createMaster';
 import { bindNavigation, unbindNavigation, goToScene } from './components/Navigation/navigation';
 import { useKeyboardNav } from './components/Navigation/useKeyboardNav';
+import { useWheelNav } from './components/Navigation/useWheelNav';
 import { installQA } from './animations/qa';
 
 import { buildDecision } from './animations/scenes/decision';
@@ -33,6 +34,7 @@ export default function App() {
 
   // Hook centralizado para navegación por teclado
   useKeyboardNav();
+  useWheelNav();
 
   useEffect(() => {
     // Exponer handles para debug y QA

@@ -33,14 +33,15 @@ export const bindWorld = (el: HTMLElement | null) => {
 };
 
 let lastThreeKey = '';
-let lastEra: number | null = null;
+let lastWrittenEra: number | null = null;
 
 export function applyRig() {
   if (worldEl) {
     worldEl.style.transform = `translate3d(${rig.tx}px, ${rig.ty}px, 0) scale(${rig.s})`;
-    if (rig.era !== lastEra) {
-      lastEra = rig.era;
-      document.documentElement.style.setProperty('--era', String(rig.era));
+    const e = Math.round(rig.era * 20) / 20;
+    if (e !== lastWrittenEra) {
+      lastWrittenEra = e;
+      document.documentElement.style.setProperty('--era', String(e));
     }
   }
   const threeKey = `${rig.tx}|${rig.ty}|${rig.s}|` + Object.values(fx).join('|');

@@ -1,5 +1,6 @@
 import { forwardRef, useImperativeHandle, useRef, useEffect } from 'react';
 import gsap from 'gsap';
+import { sceneStore } from '../../animations/rig';
 
 export interface CloudScreenHandle {
   container: HTMLDivElement | null;
@@ -54,6 +55,24 @@ export const CloudScreen = forwardRef<CloudScreenHandle, CloudScreenProps>(
         prevBootedRef.current = false;
       }
     }, [isBooted]);
+
+    useEffect(() => {
+      const updateAnimState = () => {
+        if (!containerRef.current) return;
+        const isPaused = sceneStore.get().scene >= 4;
+        const animEls = containerRef.current.querySelectorAll<HTMLElement>(
+          '.cloud-status-dot, .cloud-wave-path--primary, .cloud-wave-path--secondary'
+        );
+        animEls.forEach((el) => {
+          el.style.animationPlayState = isPaused ? 'paused' : 'running';
+        });
+      };
+
+      const unsub = sceneStore.subscribe(updateAnimState);
+      updateAnimState();
+
+      return () => unsub();
+    }, []);
 
     useImperativeHandle(ref, () => ({
       container: containerRef.current,

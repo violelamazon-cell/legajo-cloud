@@ -16,10 +16,18 @@ export const buildStrategies: SceneBuilder = (tl) => {
       y: () => macLocalZoom().y,
       duration: 2.0,
       ease: 'power2.inOut',
+      force3D: true,
     },
     t
   );
   tl.to(rig, { era: 1, duration: 2.0, ease: 'power2.inOut' }, t);
+
+  // Ocultar capas pesadas externas a la pantalla durante el zoom
+  tl.to(
+    ['.mac-plate--reflection', '.mac-floor-glow', '.mac-arrival-flash', '#stage canvas'],
+    { autoAlpha: 0, duration: 0.3 },
+    t
+  );
 
   // Garantizar extinción total de haces de fibra al entrar en estrategias
   tl.to(fx, { beamsFade: 1.0, duration: 0.2 }, t);

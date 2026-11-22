@@ -35,8 +35,7 @@
     linear-gradient(90deg, rgba(34, 230, 216, 0.04) 1px, transparent 1px);
   background-size: 4.1cqw 4.1cqw;
   background-position: center center;
-  mask-image: radial-gradient(ellipse at center, black 40%, transparent 95%);
-  -webkit-mask-image: radial-gradient(ellipse at center, black 40%, transparent 95%);
+  opacity: 0.8;
   pointer-events: none;
 }
 
@@ -325,7 +324,7 @@
   overflow: hidden;
 }
 
-html:is([data-scene='4'], [data-scene='5'], [data-scene='6'], [data-scene='7']) #cloud-screen * {
+html:is([data-scene='4'], [data-scene='5'], [data-scene='6'], [data-scene='7']) #cloud-screen *:not(.cloud-cursor) {
   animation-play-state: paused !important;
 }
 

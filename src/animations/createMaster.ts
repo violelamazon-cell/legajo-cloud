@@ -17,7 +17,7 @@ export function createMaster(stage: HTMLElement, tl: gsap.core.Timeline) {
     animation: tl,
     trigger: stage,
     start: 'top top',
-    end: () => '+=' + tl.duration() * window.innerHeight,
+    end: () => '+=' + tl.duration() * window.innerHeight * 1.25,
     pin: true,
     scrub: 0.6,
     anticipatePin: 1,
@@ -38,7 +38,7 @@ export function createMaster(stage: HTMLElement, tl: gsap.core.Timeline) {
           : [...validStops].reverse().find((x) => x <= clampedV + 1e-4);
         return next ?? clampedV;
       },
-      duration: { min: 0.25, max: 0.8 },
+      duration: { min: 0.5, max: 1.2 },
       delay: 0.15,
       ease: 'power2.inOut',
     },

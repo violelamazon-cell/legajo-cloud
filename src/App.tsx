@@ -25,6 +25,7 @@ import { Stage3D } from './three/Stage3D';
 
 import { ProgressIndicator } from './components/ProgressIndicator';
 import { DebugHUD } from './components/DebugHUD';
+import { DebugHud } from './components/Debug/DebugHud';
 
 export default function App() {
   const stageRef = useRef<HTMLDivElement>(null);
@@ -121,6 +122,8 @@ export default function App() {
           <Stage3D />
         </div>
       </div>
+
+      {typeof window !== 'undefined' && window.location.search.includes('debug') && <DebugHud />}
     </div>
   );
 }

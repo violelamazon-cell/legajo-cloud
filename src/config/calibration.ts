@@ -77,6 +77,17 @@ export function getPlateScale(winW?: number, winH?: number): number {
   return s > 0 ? s : 1;
 }
 
+export function macLocalZoom() {
+  const s = getPlateScale();
+  const pw = PLATE_WIDTH * s, ph = PLATE_HEIGHT * s;
+  const winW = typeof window !== 'undefined' ? window.innerWidth : 1920;
+  const winH = typeof window !== 'undefined' ? window.innerHeight : 1080;
+  const k = Math.min((winW * 0.94) / (pw * MAC_SCREEN.w), (winH * 0.94) / (ph * MAC_SCREEN.h));
+  const x = -(MAC_SCREEN.l + MAC_SCREEN.w / 2 - 0.5) * pw;
+  const y = -(MAC_SCREEN.t + MAC_SCREEN.h / 2 - 0.5) * ph;
+  return { k, x, y };
+}
+
 export function macScreenZoom() {
   const winW = typeof window !== 'undefined' ? window.innerWidth : 1920;
   const winH = typeof window !== 'undefined' ? window.innerHeight : 1080;

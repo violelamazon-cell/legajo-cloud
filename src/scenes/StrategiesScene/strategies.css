@@ -144,9 +144,9 @@
 
 /* Badge RECOMENDADA */
 .strat-badge {
-  position: absolute;
-  top: -1cqw;
-  right: 1.4cqw;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
   font: 700 0.95cqw 'JetBrains Mono', monospace;
   font-style: normal;
   padding: 0.35cqw 0.95cqw;

@@ -1,7 +1,7 @@
 import { rig, applyRig } from '../rig';
 import { fx } from '../../three/fx';
 import { typeInto } from '../typeInto';
-import type { SceneBuilder } from '../timeline';
+import { endScene, type SceneBuilder } from '../timeline';
 
 const q = (s: string) => document.querySelector(s)!;
 
@@ -69,5 +69,5 @@ export const buildWrapper: SceneBuilder = (tl) => {
   typeInto(tl, q('.wr-l2'), '> INTERFACE: MODERNIZED', t + 2.65, 0.30);
 
   // Reposo de la Escena 03
-  tl.addLabel('s2', t + 3.15);
+  endScene(tl, 's2', t + 3.15);
 };

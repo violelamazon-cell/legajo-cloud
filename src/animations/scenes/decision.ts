@@ -1,4 +1,4 @@
-import type { SceneBuilder } from '../timeline';
+import { endScene, type SceneBuilder } from '../timeline';
 import { rig } from '../rig';
 
 // Zoom equilibrado para la escena 02:
@@ -54,5 +54,5 @@ export const buildDecision: SceneBuilder = (tl) => {
   );
 
   // 7. Reposo de la escena 02
-  tl.addLabel('s1', t + 1.45);
+  endScene(tl, 's1', t + 1.45);
 };

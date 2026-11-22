@@ -5,6 +5,11 @@ import { fx, FX_INITIAL } from '../three/fx';
 export const SCENE_COUNT = 7;
 export type SceneBuilder = (tl: gsap.core.Timeline) => void;
 
+export function endScene(tl: gsap.core.Timeline, label: string, at: number) {
+  tl.addLabel(label, at);
+  tl.set({}, {}, at); // hijo vacío en `at`: obliga a que tl.duration() llegue hasta el label
+}
+
 export function buildMaster(builders: SceneBuilder[]) {
   const tl = gsap.timeline({ paused: true, defaults: { ease: 'none' }, onUpdate: applyRig });
   tl.set(rig, { tx: 0, ty: 0, s: 1, era: 0 }, 0); // estado inicial único

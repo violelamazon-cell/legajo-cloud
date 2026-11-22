@@ -31,7 +31,7 @@ export function goToScene(i: number) {
   const y = st.start + p * (st.end - st.start);
   gsap.to(window, {
     scrollTo: { y, autoKill: true },
-    duration: 1.1,
+    duration: 1.6,
     ease: 'power2.inOut',
     overwrite: true,
     onComplete: () => {

@@ -312,22 +312,9 @@
   100% { transform: translateY(-0.51cqw) scaleY(1.06); }
 }
 
-/* ── Flash de encendido ──────────────────────────────────── */
+/* ── Flash de encendido (deshabilitado para evitar destellos blancos) ───────────────── */
 .cloud-screen-flash-line {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  height: 0.51cqw;
-  background: #ffffff;
-  box-shadow:
-    0 0 3.85cqw #ffffff,
-    0 0 7.69cqw rgba(34, 230, 216, 0.9),
-    0 0 11.54cqw rgba(165, 107, 255, 0.7);
-  transform: translateY(-50%) scaleX(0);
-  opacity: 0;
-  pointer-events: none;
-  z-index: 50;
+  display: none;
 }
 
 #cloud-screen.cloud-screen-container.mac-ui {

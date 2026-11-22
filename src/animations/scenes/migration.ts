@@ -1,4 +1,4 @@
-import type { SceneBuilder } from '../timeline';
+import { endScene, type SceneBuilder } from '../timeline';
 import { rig, applyRig } from '../rig';
 import { fx } from '../../three/fx';
 import { MAC_OFFSET_X } from '../../config/calibration';
@@ -7,8 +7,10 @@ const fxUpdate = applyRig;
 
 export const buildMigration: SceneBuilder = (tl) => {
   // Estado inicial en t=0 para reversibilidad determinista
+  // NOTA: #cloud-screen NO se inicializa aquí — su visibilidad la gestiona React
+  // (visibility: hidden cuando isBooted=false). Tocar autoAlpha desde el master
+  // timeline rompe la reversibilidad porque el encendido ocurre fuera del timeline.
   tl.set('#scene-4', { autoAlpha: 0 }, 0);
-  tl.set('#cloud-screen', { autoAlpha: 0 }, 0);
   tl.set('.mac-floor-glow', { opacity: 0 }, 0);
   tl.set('.mac-arrival-flash', { opacity: 0 }, 0);
 
@@ -114,5 +116,5 @@ export const buildMigration: SceneBuilder = (tl) => {
   // ── 9. Reposo de la Escena 04 (FASE B: Espera interactiva) ────────────────
   //    La MacBook permanece 100% apagada en el timeline de scroll.
   //    El encendido deliberate ocurre únicamente por interacción del usuario (click).
-  tl.addLabel('s3', t + DUR);
+  endScene(tl, 's3', t + 2.55);
 };

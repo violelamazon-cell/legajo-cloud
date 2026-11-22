@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect, useCallback, useSyncExternalStore } from 'react';
 import gsap from 'gsap';
-import { PLATE_WIDTH, PLATE_HEIGHT, MAC_OFFSET_X, getPlateScale } from '../../config/calibration';
+import { PLATE_WIDTH, PLATE_HEIGHT, MAC_OFFSET_X, getPlateScale, MAC_SCREEN } from '../../config/calibration';
 import { MacScreen } from '../../components/MacScreen/MacScreen';
 import { CalibMac } from '../../components/MacScreen/CalibMac';
 import { sceneStore, applyRig } from '../../animations/rig';
@@ -112,12 +112,8 @@ export const MigrationScene: React.FC = () => {
     gsap.set(cs.flashLine, { opacity: 0, scaleX: 0, scaleY: 1 });
 
     // ── FASE 1: ACTIVACIÓN ──────────────────────────────────────────────────
-    // Destello horizontal cian/blanco dentro de la pantalla
-    tl.to(cs.flashLine, { opacity: 1, scaleX: 1, duration: 0.16, ease: 'power2.out' }, 0);
-    // El destello se expande verticalmente revelando el fondo luminoso
-    tl.to(cs.flashLine, { scaleY: 120, opacity: 0.85, duration: 0.28, ease: 'power3.inOut' }, 0.14);
-    tl.to(cs.bg, { opacity: 1, duration: 0.35, ease: 'power1.out' }, 0.20);
-    tl.to(cs.flashLine, { opacity: 0, duration: 0.22, ease: 'power2.in' }, 0.38);
+    // Fade suave sobre fondo #04050a
+    tl.to(cs.bg, { opacity: 1, duration: 0.4, ease: 'power1.out' }, 0);
 
     // ── FASE 2: CONSTRUCCIÓN DE LA INTERFAZ ─────────────────────────────────
     // Aparece progresivamente el marco de la ventana
@@ -154,8 +150,6 @@ export const MigrationScene: React.FC = () => {
     tl.to(cs.waves, { autoAlpha: 1, y: 0, duration: 0.50, ease: 'power2.out' }, 1.35);
 
     // ── FASE 4: ESTADO FINAL ────────────────────────────────────────────────
-    // Destello breve de coronación en 100% y estabilización en estado permanente
-    tl.to(cs.bg, { filter: 'brightness(1.22)', duration: 0.18, yoyo: true, repeat: 1 }, 2.35);
   }, [isBooted, hidePrompt]);
 
   const handleInteraction = useCallback(
@@ -221,20 +215,32 @@ export const MigrationScene: React.FC = () => {
         }}
       >
         <div
-          ref={containerRef}
-          onClick={isWaitingClick ? handleInteraction : undefined}
-          onPointerDown={isWaitingClick ? handleInteraction : undefined}
+          className="mac-zoom"
           style={{
-            width: `${PLATE_WIDTH}px`,
-            height: `${PLATE_HEIGHT}px`,
-            transform: `scale(${scale})`,
-            transformOrigin: 'center center',
+            position: 'relative',
             flexShrink: 0,
-            cursor: isWaitingClick ? 'pointer' : 'default',
-            pointerEvents: isWaitingClick ? 'auto' : 'none',
+            width: PLATE_WIDTH * scale,
+            height: PLATE_HEIGHT * scale,
+            transformOrigin: `${(MAC_SCREEN.l + MAC_SCREEN.w / 2) * 100}% ${(MAC_SCREEN.t + MAC_SCREEN.h / 2) * 100}%`,
           }}
-          className="mac-plate relative select-none"
         >
+          <div
+            ref={containerRef}
+            onClick={isWaitingClick ? handleInteraction : undefined}
+            onPointerDown={isWaitingClick ? handleInteraction : undefined}
+            className="mac-plate select-none"
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              width: PLATE_WIDTH,
+              height: PLATE_HEIGHT,
+              transform: `scale(${scale})`,
+              transformOrigin: '0 0',
+              cursor: isWaitingClick ? 'pointer' : 'default',
+              pointerEvents: isWaitingClick ? 'auto' : 'none',
+            }}
+          >
           {/* Resplandor ambiental de piso para la MacBook moderna */}
           <div
             className="mac-floor-glow"
@@ -368,6 +374,7 @@ export const MigrationScene: React.FC = () => {
           )}
         </div>
       </div>
-    </section>
+    </div>
+  </section>
   );
 };

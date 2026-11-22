@@ -65,8 +65,8 @@ export const buildWrapper: SceneBuilder = (tl) => {
   tl.to('.wrap-label', { autoAlpha: 1, duration: 0.25 }, t + 2.05);
   tl.to('.crt-layer--wrapper', { autoAlpha: 1, duration: 0.25 }, t + 2.15);
   typeInto(tl, q('.wr-title'), '// API WRAPPER v2.0', t + 2.15, 0.25);
-  typeInto(tl, q('.wr-l1'), '> CORE: UNTOUCHED', t + 2.40, 0.25);
-  typeInto(tl, q('.wr-l2'), '> INTERFACE: MODERNIZED', t + 2.65, 0.30);
+  typeInto(tl, q('.wr-l1'), '> NÚCLEO: INTACTO', t + 2.40, 0.26);
+  typeInto(tl, q('.wr-l2'), '> INTERFAZ: MODERNIZADA', t + 2.67, 0.30);
 
   // Reposo de la Escena 03
   endScene(tl, 's2', t + 3.15);

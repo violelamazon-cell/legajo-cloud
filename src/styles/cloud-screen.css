@@ -50,8 +50,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 2.05cqw;
-  background: rgba(10, 14, 22, 0.80);
-  backdrop-filter: blur(0.51cqw);
+  background: rgba(10, 14, 22, 0.95);
 }
 
 .cloud-window-dots {
@@ -278,9 +277,6 @@
 
 /* ── Ícono SVG de nube ───────────────────────────────────── */
 .cloud-icon-svg {
-  filter:
-    drop-shadow(0 0 2.05cqw rgba(34, 230, 216, 0.55))
-    drop-shadow(0 0 3.59cqw rgba(165, 107, 255, 0.35));
   width: 28.21cqw;
   height: 22.44cqw;
 }
@@ -327,5 +323,9 @@
   margin: 0;
   box-sizing: border-box;
   overflow: hidden;
+}
+
+html:is([data-scene='4'], [data-scene='5'], [data-scene='6'], [data-scene='7']) #cloud-screen * {
+  animation-play-state: paused !important;
 }
 

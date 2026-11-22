@@ -23,16 +23,16 @@ export const buildMetrics: SceneBuilder = (tl) => {
     const mod = () => layoutBox(q(`.met-${n}`), screen);
     tl.fromTo(`.met-${n}`,
       { x: () => card().x - mod().x, y: () => card().y - mod().y, scaleX: () => card().w / mod().w, scaleY: () => card().h / mod().h },
-      { x: 0, y: 0, scaleX: 1, scaleY: 1, duration: 1.2, ease: 'power3.inOut' }, t);
+      { x: 0, y: 0, scaleX: 1, scaleY: 1, duration: 1.6, ease: 'power3.inOut' }, t);
   });
-  tl.to('.strat-card', { autoAlpha: 0, duration: 0.2 }, t);
+  tl.to('.strat-card', { autoAlpha: 0, duration: 0.3 }, t);
 
   // 2. aparece el contenido y los módulos 04 y 05
-  tl.fromTo('.met-4, .met-5', { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, stagger: 0.18, duration: 0.5 }, t + 0.9);
-  tl.fromTo('.met-body', { autoAlpha: 0 }, { autoAlpha: 1, stagger: 0.12, duration: 0.4 }, t + 1.0);
+  tl.fromTo('.met-4, .met-5', { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, stagger: 0.25, duration: 0.7 }, t + 1.2);
+  tl.fromTo('.met-body', { autoAlpha: 0 }, { autoAlpha: 1, stagger: 0.12, duration: 0.6 }, t + 1.3);
 
   // 3. indicadores
-  const at = t + 1.5;
+  const at = t + 1.9;
   const c = { v: 0 };
   tl.fromTo(c, { v: 0 }, { v: M.integridad.pct, duration: 1, ease: 'none',
     onUpdate: () => setText('.met-int-pct', Math.round(c.v) + '%'),
@@ -45,5 +45,5 @@ export const buildMetrics: SceneBuilder = (tl) => {
   tl.fromTo('.met-fill-before', { scaleX: 0 }, { scaleX: M.adopcion.antes.fill, duration: 1, ease: 'power2.out' }, at);
   tl.fromTo('.met-fill-after', { scaleX: 0 }, { scaleX: M.adopcion.despues.fill, duration: 1, ease: 'power2.out' }, at + 0.5);
 
-  endScene(tl, 's5', t + 3.4);
+  endScene(tl, 's5', t + 4.0);
 };

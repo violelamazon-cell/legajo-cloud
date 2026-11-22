@@ -8,6 +8,15 @@ gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 const FREE_RANGES: Array<[number, number]> = [[2, 3], [3, 4]]; // entre s2-s3 (paneo) y s3-s4 (zoom estrategias): sin snap agresivo
 
+let lastSceneDataset: string | null = null;
+const updateSceneDataset = (scene: number) => {
+  const s = String(scene);
+  if (s !== lastSceneDataset) {
+    lastSceneDataset = s;
+    document.documentElement.dataset.scene = s;
+  }
+};
+
 export function createMaster(stage: HTMLElement, tl: gsap.core.Timeline) {
   const stops = () => Array.from({ length: STOP_COUNT }, (_, i) => tl.labels['s' + i] / tl.duration());
   const nearest = (p: number) =>
@@ -19,7 +28,7 @@ export function createMaster(stage: HTMLElement, tl: gsap.core.Timeline) {
     start: 'top top',
     end: () => '+=' + tl.duration() * window.innerHeight * 1.25,
     pin: true,
-    scrub: 0.6,
+    scrub: 1,
     anticipatePin: 1,
     invalidateOnRefresh: true,
     snap: {
@@ -38,8 +47,8 @@ export function createMaster(stage: HTMLElement, tl: gsap.core.Timeline) {
           : [...validStops].reverse().find((x) => x <= clampedV + 1e-4);
         return next ?? clampedV;
       },
-      duration: { min: 0.5, max: 1.2 },
-      delay: 0.15,
+      duration: { min: 0.7, max: 1.6 },
+      delay: 0.1,
       ease: 'power2.inOut',
     },
     onUpdate: (self) => {
@@ -52,11 +61,15 @@ export function createMaster(stage: HTMLElement, tl: gsap.core.Timeline) {
         if (self.scroll() > maxScroll) {
           self.scroll(maxScroll);
         }
-        sceneStore.set({ progress: s3Progress, stop: 3, scene: sceneOfStop(3) });
+        const sc = sceneOfStop(3);
+        updateSceneDataset(sc);
+        sceneStore.set({ progress: s3Progress, stop: 3, scene: sc });
         return;
       }
       const idx = nearest(self.progress);
-      sceneStore.set({ progress: self.progress, stop: idx, scene: sceneOfStop(idx) });
+      const sc = sceneOfStop(idx);
+      updateSceneDataset(sc);
+      sceneStore.set({ progress: self.progress, stop: idx, scene: sc });
     },
   });
 }

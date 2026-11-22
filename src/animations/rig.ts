@@ -1,4 +1,5 @@
 import { invalidate } from '@react-three/fiber';
+import { fx } from '../three/fx';
 
 type Listener = () => void;
 let state = {
@@ -31,14 +32,24 @@ export const bindWorld = (el: HTMLElement | null) => {
   worldEl = el;
 };
 
+let lastThreeKey = '';
+let lastEra: number | null = null;
+
 export function applyRig() {
   if (worldEl) {
     worldEl.style.transform = `translate3d(${rig.tx}px, ${rig.ty}px, 0) scale(${rig.s})`;
-    document.documentElement.style.setProperty('--era', String(rig.era));
+    if (rig.era !== lastEra) {
+      lastEra = rig.era;
+      document.documentElement.style.setProperty('--era', String(rig.era));
+    }
   }
-  try {
-    invalidate();
-  } catch {
-    // R3F Canvas aún no montado en Etapa 1
+  const threeKey = `${rig.tx}|${rig.ty}|${rig.s}|` + Object.values(fx).join('|');
+  if (threeKey !== lastThreeKey) {
+    lastThreeKey = threeKey;
+    try {
+      invalidate();
+    } catch {
+      // R3F Canvas aún no montado en Etapa 1
+    }
   }
 }

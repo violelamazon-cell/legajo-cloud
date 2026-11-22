@@ -3,6 +3,7 @@ import { invalidate } from '@react-three/fiber';
 type Listener = () => void;
 let state = {
   scene: 0,
+  stop: 0,
   progress: 0,
   booted: false,
   migrationBootStarted: false,

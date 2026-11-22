@@ -19,8 +19,8 @@ import { BootScene } from './scenes/BootScene/BootScene';
 import { WrapperScene } from './scenes/WrapperScene/WrapperScene';
 import { MigrationScene } from './scenes/MigrationScene/MigrationScene';
 import { StrategiesScene } from './scenes/StrategiesScene/StrategiesScene';
-import { MetricsScene } from './scenes/MetricsScene/MetricsScene';
-import { ClosingScene } from './scenes/ClosingScene/ClosingScene';
+// import { MetricsScene } from './scenes/MetricsScene/MetricsScene';
+// import { ClosingScene } from './scenes/ClosingScene/ClosingScene';
 import { Stage3D } from './three/Stage3D';
 
 import { ProgressIndicator } from './components/ProgressIndicator';
@@ -67,6 +67,7 @@ export default function App() {
       if (st) {
         bindNavigation(st, tl);
       }
+      document.fonts.ready.then(() => ScrollTrigger.refresh());
     }, stageRef);
 
     return () => {
@@ -102,8 +103,6 @@ export default function App() {
             <WrapperScene />
             <MigrationScene />
             <StrategiesScene />
-            <MetricsScene />
-            <ClosingScene />
           </div>
 
           {/* Overlay de fondo carbón para la escena 04 de migración.

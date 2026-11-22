@@ -2,7 +2,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import { sceneStore } from '../../animations/rig';
-import { SCENE_COUNT } from '../../animations/timeline';
+import { STOP_COUNT } from '../../animations/timeline';
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
@@ -21,11 +21,11 @@ export const unbindNavigation = () => {
   pending = null;
 };
 
-export function goToScene(i: number) {
+export function goToStop(i: number) {
   if (!sceneStore.get().booted) return; // bloqueado hasta terminar el encendido CRT
   if (i > 3 && !sceneStore.get().migrationBooted) return; // bloqueado hasta encender la MacBook
   if (!st || !tlRef) return;
-  const idx = Math.max(0, Math.min(SCENE_COUNT - 1, i));
+  const idx = Math.max(0, Math.min(STOP_COUNT - 1, i));
   pending = idx;
   const p = tlRef.labels['s' + idx] / tlRef.duration();
   const y = st.start + p * (st.end - st.start);
@@ -43,7 +43,8 @@ export function goToScene(i: number) {
   });
 }
 
+export const goToScene = (i: number) => goToStop(i);
+
 export const stepScene = (d: 1 | -1) => {
-  const current = pending ?? sceneStore.get().scene;
-  goToScene(current + d);
+  goToStop((pending ?? sceneStore.get().stop) + d);
 };

@@ -1,0 +1,26 @@
+.met-layer { position: absolute; inset: 0; opacity: 0; visibility: hidden; }
+.met-grid { position: absolute; inset: 7cqw 4cqw 6.5cqw; display: grid; grid-template-columns: repeat(6, 1fr); grid-template-rows: 1fr 1fr; gap: 1.6cqw; }
+.met-card { position: relative; overflow: hidden; transform-origin: 0 0; border-radius: 1.6cqw; color: #e8f6ff;
+  border: 1px solid rgba(255, 255, 255, 0.14); background: rgba(255, 255, 255, 0.045); backdrop-filter: blur(10px); }
+.met-1, .met-2, .met-3 { grid-column: span 2; }
+.met-4, .met-5 { grid-column: span 3; }
+.met-5 { border-color: rgba(34, 230, 216, 0.7); box-shadow: 0 0 2.4cqw rgba(34, 230, 216, 0.2); }
+.met-body { position: absolute; inset: 0; padding: 1.6cqw 1.8cqw; display: flex; flex-direction: column; gap: 0.8cqw; opacity: 0; }
+.met-n { font: 500 1.1cqw 'JetBrains Mono', monospace; color: #8aa4b8; }
+.met-card h4 { margin: 0; font: 600 1.45cqw/1.15 'JetBrains Mono', monospace; letter-spacing: 0.04em; }
+.met-cap { font: 400 1.1cqw 'JetBrains Mono', monospace; color: #9fb4c4; }
+.met-big { display: flex; align-items: center; justify-content: space-between; }
+.met-big b { font: 700 3.4cqw/1 Inter, sans-serif; }
+.met-ico { width: 2.6cqw; height: 2.6cqw; color: #22e6d8; }
+.met-track { height: 0.9cqw; flex: 1; overflow: hidden; border-radius: 99px; background: rgba(255, 255, 255, 0.12); }
+.met-fill { display: block; height: 100%; border-radius: inherit; transform-origin: left center; transform: scaleX(0);
+  background: linear-gradient(90deg, #22e6d8, #a56bff); }
+.met-fill-before { background: #8aa4b8; }
+.met-row { display: flex; align-items: center; gap: 1cqw; font: 500 1.15cqw 'JetBrains Mono', monospace; color: #9fb4c4; }
+.met-row svg { width: 1.6cqw; height: 1.6cqw; flex: none; color: #22e6d8; }
+.met-row em { min-width: 4.5cqw; text-align: right; font-style: normal; color: #e8f6ff; }
+.met-chart { width: 100%; flex: 1; min-height: 0; }
+.met-curve { fill: none; stroke-width: 2; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.met-curve-new { stroke: #22e6d8; }
+.met-curve-old { stroke: #8aa4b8; }
+.met-note { position: absolute; left: 4cqw; bottom: 2.2cqw; margin: 0; font: 400 1cqw 'JetBrains Mono', monospace; letter-spacing: 0.08em; color: #6f879a; }

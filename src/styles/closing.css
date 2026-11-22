@@ -1,0 +1,4 @@
+.close-layer { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 1.8cqw; opacity: 0; visibility: hidden; }
+.close-title { margin: 0; font: 500 9cqw/1 Inter, sans-serif; letter-spacing: 0.02em; color: #e9eef2; }
+.close-sub { margin: 0; font: 400 2cqw 'JetBrains Mono', monospace; letter-spacing: 0.28em; color: #8aa4b8; }

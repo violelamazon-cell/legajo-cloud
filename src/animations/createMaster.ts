@@ -2,14 +2,14 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import { sceneStore } from './rig';
-import { SCENE_COUNT } from './timeline';
+import { STOP_COUNT, sceneOfStop } from './timeline';
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 const FREE_RANGES: Array<[number, number]> = [[2, 3], [3, 4]]; // entre s2-s3 (paneo) y s3-s4 (zoom estrategias): sin snap agresivo
 
 export function createMaster(stage: HTMLElement, tl: gsap.core.Timeline) {
-  const stops = () => Array.from({ length: SCENE_COUNT }, (_, i) => tl.labels['s' + i] / tl.duration());
+  const stops = () => Array.from({ length: STOP_COUNT }, (_, i) => tl.labels['s' + i] / tl.duration());
   const nearest = (p: number) =>
     stops().reduce((best, s, i, a) => (Math.abs(s - p) < Math.abs(a[best] - p) ? i : best), 0);
 
@@ -52,10 +52,11 @@ export function createMaster(stage: HTMLElement, tl: gsap.core.Timeline) {
         if (self.scroll() > maxScroll) {
           self.scroll(maxScroll);
         }
-        sceneStore.set({ progress: s3Progress, scene: 3 });
+        sceneStore.set({ progress: s3Progress, stop: 3, scene: sceneOfStop(3) });
         return;
       }
-      sceneStore.set({ progress: self.progress, scene: nearest(self.progress) });
+      const idx = nearest(self.progress);
+      sceneStore.set({ progress: self.progress, stop: idx, scene: sceneOfStop(idx) });
     },
   });
 }

@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
-import { stepScene, goToScene } from './navigation';
-import { SCENE_COUNT } from '../../animations/timeline';
+import { stepScene, goToStop } from './navigation';
 import { sceneStore } from '../../animations/rig';
 
 export function useKeyboardNav() {
@@ -21,8 +20,8 @@ export function useKeyboardNav() {
         ArrowRight: () => stepScene(1),
         ArrowUp: () => stepScene(-1),
         ArrowLeft: () => stepScene(-1),
-        Home: () => goToScene(0),
-        End: () => goToScene(sceneStore.get().migrationBooted ? SCENE_COUNT - 1 : 3),
+        Home: () => goToStop(0),
+        End: () => goToStop(sceneStore.get().migrationBooted ? 6 : 3),
       };
       const fn = map[e.key];
       if (!fn) return;

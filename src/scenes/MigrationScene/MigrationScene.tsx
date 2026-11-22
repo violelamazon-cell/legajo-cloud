@@ -7,6 +7,8 @@ import { sceneStore, applyRig } from '../../animations/rig';
 import { getPrefersReducedMotion } from '../../config/motion';
 import { CloudScreen, type CloudScreenHandle } from './CloudScreen';
 import { StrategiesLayer } from '../StrategiesScene/StrategiesLayer';
+import { MetricsLayer } from '../MetricsScene/MetricsLayer';
+import { ClosingLayer } from '../ClosingScene/ClosingLayer';
 
 export const MigrationScene: React.FC = () => {
   const [scale, setScale] = useState(1);
@@ -302,6 +304,8 @@ export const MigrationScene: React.FC = () => {
               <CloudScreen ref={cloudScreenRef} isBooted={isBooted} />
             </div>
             <StrategiesLayer />
+            <MetricsLayer />
+            <ClosingLayer />
           </MacScreen>
 
           {typeof window !== 'undefined' && window.location.search.includes('calib') && (

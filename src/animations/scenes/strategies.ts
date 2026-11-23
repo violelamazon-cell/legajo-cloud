@@ -31,10 +31,10 @@ export const buildStrategies: SceneBuilder = (tl) => {
 
   // Garantizar extinción total de haces de fibra al entrar en estrategias
   tl.to(fx, { beamsFade: 1.0, duration: 0.2 }, t);
-  tl.to('.retro-layer',          { autoAlpha: 0, duration: 0.6 }, t + 0.6);
-  // Cross-fade: Cloud desaparece, .strat-layer aparece.
-  tl.to('#cloud-screen-wrapper', { autoAlpha: 0, duration: 0.5, ease: 'power1.inOut' }, t + 1.0);
-  tl.to('.strat-layer',          { autoAlpha: 1, duration: 0.01 }, t + 1.4);
-  tl.to('.strat-card',           { autoAlpha: 1, y: 0, stagger: 0.25, duration: 0.6, ease: 'power2.out' }, t + 1.5);
-  endScene(tl, 's4', t + 3.0);
+  tl.to('.retro-layer',          { autoAlpha: 0, duration: 0.4 }, t);
+  // Cloud desaparece recién al terminar el zoom; luego aparecen las tarjetas.
+  tl.to('#cloud-screen-wrapper', { autoAlpha: 0, duration: 0.4, ease: 'power1.inOut' }, t + 2.0);
+  tl.to('.strat-layer',          { autoAlpha: 1, duration: 0.01 }, t + 2.3);
+  tl.to('.strat-card',           { autoAlpha: 1, y: 0, stagger: 0.2, duration: 0.5, ease: 'power2.out' }, t + 2.4);
+  endScene(tl, 's4', t + 3.5);
 };

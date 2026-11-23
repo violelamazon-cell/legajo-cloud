@@ -6,6 +6,9 @@ import { STOP_COUNT } from '../../animations/timeline';
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
+const STOP_DURATION: Record<number, number> = { 4: 3.2 };
+const DEFAULT_DURATION = 2.0;
+
 let st: ScrollTrigger | null = null;
 let tlRef: gsap.core.Timeline | null = null;
 let pending: number | null = null;
@@ -34,7 +37,7 @@ export function goToStop(i: number) {
   const y = st.start + p * (st.end - st.start);
   gsap.to(window, {
     scrollTo: { y, autoKill: true },
-    duration: 2.0,
+    duration: STOP_DURATION[idx] ?? DEFAULT_DURATION,
     ease: 'power2.inOut',
     overwrite: true,
     onComplete: () => {

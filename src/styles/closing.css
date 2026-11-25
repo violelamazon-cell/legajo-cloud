@@ -2,3 +2,11 @@
   gap: 1.8cqw; opacity: 0; visibility: hidden; }
 .close-title { margin: 0; font: 500 9cqw/1 Inter, sans-serif; letter-spacing: 0.02em; color: #e9eef2; }
 .close-sub { margin: 0; font: 400 2cqw 'JetBrains Mono', monospace; letter-spacing: 0.28em; color: #8aa4b8; }
+
+.close-refs { margin-top: 3.2cqw; text-align: center; opacity: 0; visibility: hidden; }
+.close-refs-title { margin: 0 0 0.8cqw; font: 500 1.15cqw 'JetBrains Mono', monospace; letter-spacing: 0.22em; color: #6f879a; }
+.close-refs ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5cqw; }
+.close-refs li { font: 400 1.5cqw 'JetBrains Mono', monospace; color: #8aa4b8; }
+.close-refs li span { color: #6f879a; }
+.close-refs a { color: #22e6d8; text-decoration: none; border-bottom: 1px dotted rgba(34, 230, 216, 0.5); pointer-events: auto; cursor: pointer; }
+.close-refs a:hover, .close-refs a:focus-visible { color: #fff; border-bottom-color: #fff; outline: none; }

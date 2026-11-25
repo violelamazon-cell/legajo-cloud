@@ -6,14 +6,16 @@ import { DecisionScene } from '../DecisionScene/DecisionScene';
 import { WrapperScreen } from '../WrapperScene/WrapperScreen';
 import { sceneStore } from '../../animations/rig';
 import {
-  runBootSequence,
+  showIntro,
   applyBootFinalState,
+  registerBootElements,
+  killBootTimeline,
   type BootElements,
 } from '../../animations/bootAnimations';
-import { getPrefersReducedMotion } from '../../config/motion';
+import { IntroLayer } from './IntroLayer';
 
-// Estado de boot persistente en módulo (sobrevive re-renders, no se resetea al volver)
-let bootHasRun = false;
+// Estado de encendido persistente en módulo (sobrevive re-renders, no se resetea al volver)
+let introHasRun = false;
 
 export const BootScene: React.FC = () => {
   const terminalRef = useRef<HTMLDivElement>(null);
@@ -59,38 +61,47 @@ export const BootScene: React.FC = () => {
     }
   }, []);
 
-  /** Dispara la secuencia de boot — solo se ejecuta una vez */
-  const triggerBoot = useCallback(() => {
-    if (bootHasRun) return;
-    bootHasRun = true;
+  /** Dispara el encendido CRT + pantalla institucional — solo se ejecuta una vez */
+  const triggerIntro = useCallback(() => {
+    if (introHasRun) return;
+    introHasRun = true;
 
     hidePrompt();
 
     const els = getBootElements();
     if (!els) return;
+    registerBootElements(els);
 
-    if (getPrefersReducedMotion()) {
-      applyBootFinalState(els);
-      sceneStore.set({ booted: true });
-      return;
-    }
-
-    bootTlRef.current = runBootSequence(els);
+    bootTlRef.current = showIntro();
   }, [getBootElements, hidePrompt]);
 
   useEffect(() => {
+    const els = getBootElements();
+    registerBootElements(els);
+
     // Si ya corrió el boot (p.ej. al volver a escena 1), mostrar estado final directo
-    if (sceneStore.get().booted || bootHasRun) {
-      bootHasRun = true;
-      const els = getBootElements();
+    if (sceneStore.get().booted) {
+      introHasRun = true;
       if (els) applyBootFinalState(els);
       if (promptRef.current) gsap.set(promptRef.current, { opacity: 0, display: 'none' });
       return;
     }
 
-    // Solo click y touch inician el boot — las teclas (F11, flechas, Escape) no deben dispararlo
-    const onClick = () => triggerBoot();
-    const onTouch = () => triggerBoot();
+    if (sceneStore.get().introShown || introHasRun) {
+      introHasRun = true;
+      if (els) {
+        gsap.set(els.flashEl, { opacity: 0, scaleY: 0 });
+        gsap.set(els.screenEl, { autoAlpha: 0 });
+        gsap.set('.intro-layer', { autoAlpha: 1 });
+        gsap.set('.intro-layer p, .intro-sep, .intro-row', { autoAlpha: 1, clearProps: 'transform' });
+      }
+      if (promptRef.current) gsap.set(promptRef.current, { opacity: 0, display: 'none' });
+      return;
+    }
+
+    // Solo click y touch inician el encendido — las teclas (F11, flechas, Escape) no deben dispararlo
+    const onClick = () => triggerIntro();
+    const onTouch = () => triggerIntro();
 
     window.addEventListener('click', onClick);
     window.addEventListener('touchstart', onTouch, { passive: true });
@@ -98,12 +109,9 @@ export const BootScene: React.FC = () => {
     return () => {
       window.removeEventListener('click', onClick);
       window.removeEventListener('touchstart', onTouch);
-      // Matar el timeline si está corriendo al desmontar (p.ej. HMR)
-      if (bootTlRef.current && bootTlRef.current.isActive()) {
-        bootTlRef.current.kill();
-      }
+      killBootTimeline();
     };
-  }, [triggerBoot, getBootElements]);
+  }, [triggerIntro, getBootElements]);
 
   return (
     <section
@@ -113,8 +121,13 @@ export const BootScene: React.FC = () => {
       {/* Monitor con contenido CRT — alberga las capas intercambiables de la pantalla */}
       <CRTScreen contentWidth={640} contentHeight={480}>
         {/* Capa 1: Terminal de arranque (Escena 01) */}
-        <div id="boot-terminal-layer" className="absolute inset-0 w-full h-full z-10">
+        <div
+          id="boot-terminal-layer"
+          className="absolute inset-0 w-full h-full z-10"
+          style={{ containerType: 'size' }}
+        >
           <Terminal ref={terminalRef} />
+          <IntroLayer />
         </div>
 
         {/* Capa 2: Matriz de decisión (Escena 02 — proyectada sobre el mismo cristal CRT) */}

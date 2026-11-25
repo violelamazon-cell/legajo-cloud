@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { stepScene, goToStop } from './navigation';
 import { sceneStore } from '../../animations/rig';
+import { startBoot } from '../../animations/bootAnimations';
 
 export function useKeyboardNav() {
   useEffect(() => {
@@ -16,6 +17,14 @@ export function useKeyboardNav() {
       }
       if (e.altKey || e.ctrlKey || e.metaKey) return;
       if (e.repeat && ['ArrowDown', 'ArrowRight', 'ArrowUp', 'ArrowLeft'].includes(e.key)) return;
+      if (e.key === 'Enter' || e.key === ' ') {
+        const s = sceneStore.get();
+        if (!s.booted && s.introShown && !s.bootStarted) {
+          e.preventDefault();
+          startBoot();
+        }
+        return;
+      }
       const map: Record<string, () => void> = {
         ArrowDown: () => stepScene(1),
         ArrowRight: () => stepScene(1),

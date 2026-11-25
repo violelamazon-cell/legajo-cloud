@@ -3,6 +3,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import { sceneStore } from '../../animations/rig';
 import { STOP_COUNT } from '../../animations/timeline';
+import { startBoot, backToIntro } from '../../animations/bootAnimations';
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
@@ -52,6 +53,15 @@ export function goToStop(i: number) {
 export const goToScene = (i: number) => goToStop(i);
 
 export const stepScene = (d: 1 | -1) => {
+  const s = sceneStore.get();
+  if (!s.booted) {
+    if (d === 1 && s.introShown && !s.bootStarted) startBoot();
+    return;
+  }
+  if (d === -1 && s.stop === 0 && !isNavigating()) {
+    backToIntro();
+    return;
+  }
   if (pending !== null) return;
-  goToStop(sceneStore.get().stop + d);
+  goToStop(s.stop + d);
 };

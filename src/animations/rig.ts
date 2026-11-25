@@ -6,6 +6,8 @@ let state = {
   scene: 0,
   stop: 0,
   progress: 0,
+  introShown: false,
+  bootStarted: false,
   booted: false,
   migrationBootStarted: false,
   migrationBooted: false,
